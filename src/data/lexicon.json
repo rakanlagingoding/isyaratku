@@ -1,0 +1,117 @@
+{
+  "_note": "Gloss -> kata bahasa Indonesia + kategori. Kategori dipakai rules.json.",
+  "entries": {
+    "HALO": {
+      "word": "halo",
+      "cat": "greeting"
+    },
+    "TERIMA-KASIH": {
+      "word": "terima kasih",
+      "cat": "greeting"
+    },
+    "MAAF": {
+      "word": "maaf",
+      "cat": "greeting"
+    },
+    "SAMA-SAMA": {
+      "word": "sama-sama",
+      "cat": "greeting"
+    },
+    "TOLONG": {
+      "word": "tolong",
+      "cat": "request"
+    },
+    "SAYA": {
+      "word": "saya",
+      "cat": "pronoun"
+    },
+    "KAMU": {
+      "word": "kamu",
+      "cat": "pronoun"
+    },
+    "DIA": {
+      "word": "dia",
+      "cat": "pronoun"
+    },
+    "NAMA": {
+      "word": "nama",
+      "cat": "noun"
+    },
+    "MAKAN": {
+      "word": "makan",
+      "cat": "verb"
+    },
+    "MINUM": {
+      "word": "minum",
+      "cat": "verb"
+    },
+    "PERGI": {
+      "word": "pergi",
+      "cat": "verb"
+    },
+    "PULANG": {
+      "word": "pulang",
+      "cat": "verb"
+    },
+    "MAU": {
+      "word": "mau",
+      "cat": "aspect"
+    },
+    "SUDAH": {
+      "word": "sudah",
+      "cat": "aspect"
+    },
+    "BELUM": {
+      "word": "belum",
+      "cat": "aspect"
+    },
+    "TIDAK": {
+      "word": "tidak",
+      "cat": "neg"
+    },
+    "APA": {
+      "word": "apa",
+      "cat": "question"
+    },
+    "SIAPA": {
+      "word": "siapa",
+      "cat": "question"
+    },
+    "MANA": {
+      "word": "di mana",
+      "cat": "question"
+    },
+    "KAPAN": {
+      "word": "kapan",
+      "cat": "question"
+    },
+    "SAKIT": {
+      "word": "sakit",
+      "cat": "adj"
+    },
+    "BAIK": {
+      "word": "baik",
+      "cat": "adj"
+    },
+    "RUMAH": {
+      "word": "rumah",
+      "cat": "place"
+    },
+    "KAMPUS": {
+      "word": "kampus",
+      "cat": "place"
+    }
+  },
+  "categories": {
+    "greeting": "sapaan, berdiri sendiri atau di awal kalimat",
+    "request": "permintaan (tolong)",
+    "pronoun": "kata ganti orang",
+    "noun": "kata benda",
+    "verb": "kata kerja",
+    "adj": "kata sifat / keadaan",
+    "aspect": "penanda waktu/aspek/keinginan: sudah, belum, mau",
+    "neg": "negasi: tidak",
+    "question": "kata tanya",
+    "place": "tempat"
+  }
+}

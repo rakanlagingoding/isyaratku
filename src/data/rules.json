@@ -1,0 +1,155 @@
+{
+  "_note": "Aturan Mode A, diterapkan berurutan setelah gloss dipetakan ke kategori. Implementasi: src/lib/translator/ruleBased.ts.",
+  "version": 1,
+  "register": "santai",
+  "defaultSubject": "saya",
+  "rules": [
+    {
+      "id": "R1_fingerspell",
+      "desc": "Gloss FS:XXX menjadi kata kapital awal (nama diri), kategori 'name'.",
+      "type": "fingerspell",
+      "pattern": "^FS:([A-Z]{1,20})$"
+    },
+    {
+      "id": "R2_aspect_before_predicate",
+      "desc": "Penanda aspek (SUDAH, BELUM, MAU) dipindah tepat sebelum kata kerja/sifat pertama.",
+      "type": "moveBefore",
+      "move": [
+        "aspect"
+      ],
+      "target": [
+        "verb",
+        "adj"
+      ]
+    },
+    {
+      "id": "R3_negation_before_predicate",
+      "desc": "TIDAK dipindah sebelum predikat; jika ada penanda aspek di depan predikat, TIDAK diletakkan sebelum aspek itu.",
+      "type": "moveBefore",
+      "move": [
+        "neg"
+      ],
+      "target": [
+        "aspect",
+        "verb",
+        "adj"
+      ]
+    },
+    {
+      "id": "R4_question_front",
+      "desc": "SIAPA dan KAPAN di akhir urutan dipindah ke awal. APA dan MANA tetap di akhir.",
+      "type": "moveToFront",
+      "glosses": [
+        "SIAPA",
+        "KAPAN"
+      ],
+      "onlyIfLast": true
+    },
+    {
+      "id": "R5_place_preposition",
+      "desc": "Tempat setelah kata kerja gerak diberi 'ke'.",
+      "type": "insertBefore",
+      "target": [
+        "place"
+      ],
+      "afterGlosses": [
+        "PERGI",
+        "PULANG"
+      ],
+      "insert": "ke"
+    },
+    {
+      "id": "R6_default_subject",
+      "desc": "Jika token pertama (setelah sapaan) adalah verb/aspect/neg/adj, sisipkan subjek default.",
+      "type": "insertSubject",
+      "whenFirst": [
+        "verb",
+        "aspect",
+        "neg",
+        "adj"
+      ],
+      "subject": "saya"
+    },
+    {
+      "id": "R7_greeting_comma",
+      "desc": "Sapaan/permintaan di awal yang diikuti kata lain diberi koma: 'Halo, nama saya Gilang.'",
+      "type": "comma",
+      "after": [
+        "greeting"
+      ]
+    },
+    {
+      "id": "R8_punctuate",
+      "desc": "Kapital huruf pertama; '?' jika ada kategori question, selain itu '.'.",
+      "type": "punctuate",
+      "question": "?",
+      "default": "."
+    }
+  ],
+  "mustPass": [
+    {
+      "glosses": [
+        "SAYA",
+        "MAKAN",
+        "SUDAH"
+      ],
+      "expected": "Saya sudah makan."
+    },
+    {
+      "glosses": [
+        "KAMU",
+        "PULANG",
+        "KAPAN"
+      ],
+      "expected": "Kapan kamu pulang?"
+    },
+    {
+      "glosses": [
+        "SAYA",
+        "SAKIT",
+        "TIDAK"
+      ],
+      "expected": "Saya tidak sakit."
+    },
+    {
+      "glosses": [
+        "NAMA",
+        "KAMU",
+        "SIAPA"
+      ],
+      "expected": "Siapa nama kamu?"
+    },
+    {
+      "glosses": [
+        "TOLONG",
+        "SAYA"
+      ],
+      "expected": "Tolong saya."
+    },
+    {
+      "glosses": [
+        "SAYA",
+        "MAU",
+        "PERGI",
+        "KAMPUS"
+      ],
+      "expected": "Saya mau pergi ke kampus."
+    },
+    {
+      "glosses": [
+        "HALO",
+        "NAMA",
+        "SAYA",
+        "FS:GILANG"
+      ],
+      "expected": "Halo, nama saya Gilang."
+    },
+    {
+      "glosses": [
+        "MAKAN",
+        "SUDAH"
+      ],
+      "expected": "Saya sudah makan."
+    }
+  ]
+}

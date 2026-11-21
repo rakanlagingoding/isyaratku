@@ -1,0 +1,398 @@
+{
+  "_note": "Korpus uji gloss -> kalimat buatan sendiri. 'sulit' = di luar jangkauan aturan Mode A (koma tengah, konjungsi, urutan bebas, sufiks -nya). Tambah sampai 50-100 pasangan sebelum evaluasi akhir.",
+  "pairs": [
+    {
+      "id": "p001",
+      "glosses": [
+        "HALO"
+      ],
+      "reference": "Halo.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p002",
+      "glosses": [
+        "TERIMA-KASIH"
+      ],
+      "reference": "Terima kasih.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p003",
+      "glosses": [
+        "SAMA-SAMA"
+      ],
+      "reference": "Sama-sama.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p004",
+      "glosses": [
+        "MAAF"
+      ],
+      "reference": "Maaf.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p005",
+      "glosses": [
+        "TOLONG",
+        "SAYA"
+      ],
+      "reference": "Tolong saya.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p006",
+      "glosses": [
+        "SAYA",
+        "MAKAN",
+        "SUDAH"
+      ],
+      "reference": "Saya sudah makan.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p007",
+      "glosses": [
+        "SAYA",
+        "MAKAN",
+        "BELUM"
+      ],
+      "reference": "Saya belum makan.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p008",
+      "glosses": [
+        "SAYA",
+        "MINUM",
+        "MAU"
+      ],
+      "reference": "Saya mau minum.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p009",
+      "glosses": [
+        "KAMU",
+        "MAKAN",
+        "SUDAH"
+      ],
+      "reference": "Kamu sudah makan.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p010",
+      "glosses": [
+        "DIA",
+        "PULANG",
+        "SUDAH"
+      ],
+      "reference": "Dia sudah pulang.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p011",
+      "glosses": [
+        "SAYA",
+        "SAKIT",
+        "TIDAK"
+      ],
+      "reference": "Saya tidak sakit.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p012",
+      "glosses": [
+        "SAYA",
+        "SAKIT"
+      ],
+      "reference": "Saya sakit.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p013",
+      "glosses": [
+        "DIA",
+        "BAIK"
+      ],
+      "reference": "Dia baik.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p014",
+      "glosses": [
+        "SAYA",
+        "MAU",
+        "PERGI",
+        "KAMPUS"
+      ],
+      "reference": "Saya mau pergi ke kampus.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p015",
+      "glosses": [
+        "SAYA",
+        "PULANG",
+        "RUMAH"
+      ],
+      "reference": "Saya pulang ke rumah.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p016",
+      "glosses": [
+        "DIA",
+        "PERGI",
+        "KAMPUS",
+        "SUDAH"
+      ],
+      "reference": "Dia sudah pergi ke kampus.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p017",
+      "glosses": [
+        "KAMU",
+        "PULANG",
+        "KAPAN"
+      ],
+      "reference": "Kapan kamu pulang?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p018",
+      "glosses": [
+        "KAMU",
+        "PERGI",
+        "KAMPUS",
+        "KAPAN"
+      ],
+      "reference": "Kapan kamu pergi ke kampus?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p019",
+      "glosses": [
+        "NAMA",
+        "KAMU",
+        "SIAPA"
+      ],
+      "reference": "Siapa nama kamu?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p020",
+      "glosses": [
+        "DIA",
+        "SIAPA"
+      ],
+      "reference": "Siapa dia?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p021",
+      "glosses": [
+        "NAMA",
+        "KAMU",
+        "APA"
+      ],
+      "reference": "Nama kamu apa?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p022",
+      "glosses": [
+        "KAMU",
+        "MAU",
+        "APA"
+      ],
+      "reference": "Kamu mau apa?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p023",
+      "glosses": [
+        "RUMAH",
+        "KAMU",
+        "MANA"
+      ],
+      "reference": "Rumah kamu di mana?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p024",
+      "glosses": [
+        "KAMU",
+        "MANA"
+      ],
+      "reference": "Kamu di mana?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p025",
+      "glosses": [
+        "NAMA",
+        "SAYA",
+        "FS:RAKAN"
+      ],
+      "reference": "Nama saya Rakan.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p026",
+      "glosses": [
+        "HALO",
+        "NAMA",
+        "SAYA",
+        "FS:GILANG"
+      ],
+      "reference": "Halo, nama saya Gilang.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p027",
+      "glosses": [
+        "SAYA",
+        "MINUM",
+        "TIDAK"
+      ],
+      "reference": "Saya tidak minum.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p028",
+      "glosses": [
+        "DIA",
+        "MAKAN",
+        "BELUM"
+      ],
+      "reference": "Dia belum makan.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p029",
+      "glosses": [
+        "MAKAN",
+        "SUDAH"
+      ],
+      "reference": "Saya sudah makan.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p030",
+      "glosses": [
+        "PULANG",
+        "MAU"
+      ],
+      "reference": "Saya mau pulang.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p031",
+      "glosses": [
+        "KAMU",
+        "MAKAN",
+        "KAPAN"
+      ],
+      "reference": "Kapan kamu makan?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p032",
+      "glosses": [
+        "DIA",
+        "PULANG",
+        "RUMAH",
+        "SUDAH"
+      ],
+      "reference": "Dia sudah pulang ke rumah.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p033",
+      "glosses": [
+        "HALO",
+        "SAYA",
+        "BAIK"
+      ],
+      "reference": "Halo, saya baik.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p034",
+      "glosses": [
+        "NAMA",
+        "DIA",
+        "FS:SITI"
+      ],
+      "reference": "Nama dia Siti.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p035",
+      "glosses": [
+        "MAAF",
+        "SAYA",
+        "PULANG",
+        "MAU"
+      ],
+      "reference": "Maaf, saya mau pulang.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p036",
+      "glosses": [
+        "SAYA",
+        "SAKIT",
+        "TOLONG"
+      ],
+      "reference": "Tolong, saya sakit.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p037",
+      "glosses": [
+        "TERIMA-KASIH",
+        "KAMU",
+        "BAIK"
+      ],
+      "reference": "Terima kasih, kamu baik.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p038",
+      "glosses": [
+        "SAYA",
+        "MAU",
+        "MAKAN",
+        "MINUM"
+      ],
+      "reference": "Saya mau makan dan minum.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p039",
+      "glosses": [
+        "SAYA",
+        "KAMPUS",
+        "PERGI",
+        "MAU"
+      ],
+      "reference": "Saya mau pergi ke kampus.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p040",
+      "glosses": [
+        "DIA",
+        "NAMA",
+        "FS:SITI"
+      ],
+      "reference": "Namanya Siti.",
+      "difficulty": "sulit"
+    }
+  ]
+}

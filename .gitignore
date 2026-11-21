@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+coverage
+.env
+.env.local
+.vercel
+# copied from node_modules by scripts/copy-mediapipe.mjs
+public/mediapipe
+*.log
+.DS_Store
