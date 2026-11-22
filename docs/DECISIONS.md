@@ -74,5 +74,69 @@ Saat start: buat landmarker GPU, ukur median `detectForVideo` (3 pemanasan + 8 u
 
 ### #16 — 2026-11-20 — Abjad jari mengikuti BISINDO: fitur dua tangan
 Banyak abjad BISINDO diperagakan dengan dua tangan, sehingga 63 fitur satu tangan (PRD F2 `toLetterFeatures`, §11.2) tidak cukup. Diputuskan pemilik proyek: abjad memakai fitur yang sama dengan kata (126 = 2 tangan × 21 × 3, tangan tak terlihat = 0).
-**Status:** perubahan PRD F2, §11.2, komentar `Sample.frames`, dan `docs/examples/sample-letters.example.json` diusulkan di chat; diterapkan setelah disetujui, sebelum Fase 2.
+**Status:** disetujui pemilik 2026-11-21; diterapkan ke `src/types.ts`, `docs/examples/sample-letters.example.json`, dan kode. `toLetterFeatures` tidak dipakai. Perubahan teks PRD F2/§8/§11.2 dan glosarium CLAUDE.md perlu diterapkan ulang setelah kit v1.2.
 **Perlu dicek:** apakah ada abjad BISINDO yang memakai gerakan (bukan pose statis); jika ada, model abjad 1 frame tidak cukup untuk huruf itu.
+
+### #17 — 2026-11-21 — Dataset Roboflow BISINDO sebagai data tambahan abjad
+> Diperbarui oleh #21: tidak ada rekaman sendiri; Roboflow menjadi tambahan opsional untuk dataset Kaggle, dan akurasi diukur pada split uji Kaggle.
+
+Sumber: https://universe.roboflow.com/bisindo/bisindo-dataset (CC BY 4.0, "BISINDO", 2022). Object detection, 8.743 gambar, 22 huruf; **N, P, R, T tidak ada**, label `z` huruf kecil, kelas `BISINDO-Signs` bukan isyarat (dibuang). Bounding box tidak dipakai: gambar dijalankan ulang lewat MediaPipe Hands (Python, Colab) → landmark → format `Sample` dengan `recordedBy: "roboflow"`.
+**Versi:** v3 (train 6.471 / valid 1.382 / test 1.373). Semua versi sudah grayscale + Isolate Objects + Stretch 244×244; tidak ada gambar mentah. v3 dipilih karena augmentasi 1×; augmentasi tetap di level landmark (PRD §11.2).
+**Risiko:** stretch mengubah proporsi tangan; crop rapat bisa membuat palm detector gagal (catat persentase deteksi); latar dan peraga seragam → bias domain.
+**Dependency:** `mediapipe` (Python) hanya di notebook, tidak masuk bundle web. Disetujui pemilik 2026-11-21. Atribusi wajib di laporan.
+
+### #18 — 2026-11-21 — Deploy Vercel ditunda; demo lewat server lokal
+Diputuskan pemilik: project disempurnakan dulu, deploy belakangan. Presentasi lewat `npm run dev` (HTTPS self-signed), dibuka di HP pada Wi-Fi yang sama (`https://<IP-laptop>:5173`) atau di laptop (`https://localhost:5173`). Target pemakaian tetap HP (laptop hanya server).
+**Dampak:** PRD §5 (hosting Vercel) dan kriteria Fase 1 "via HTTPS Vercel" belum dipenuhi.
+**Perlu diputuskan di Fase 6–7:** `api/translate.ts` dan `api/tts.ts` adalah serverless function Vercel dan **tidak dijalankan** oleh `vite dev`. Opsi: `vercel dev` (butuh Vercel CLI + login) atau middleware dev di Vite yang memanggil handler yang sama. Mode A dan Web Speech tetap jalan offline.
+
+### #19 — 2026-11-21 — Fitur memakai satuan yang sama di sumbu x, y, z (koreksi rasio aspek)
+Landmark MediaPipe: x = pecahan lebar gambar, y = pecahan tinggi, z ≈ skala x. Pada video 640×480 (laptop) dan 480×640 (HP potret), pose yang sama memberi fitur berbeda jika x dan y dipakai mentah. `toFeatures(frame, aspect)` mengalikan x dan z dengan `aspect = lebar / tinggi` sebelum normalisasi PRD F2. `CameraView` mengirim `aspect` lewat `onFrame(frame, aspect)`.
+**Dampak:** format `Sample` dan ukuran fitur tidak berubah. Notebook memakai salinan Python (`normalize_hand`); kesamaan TS–Python dicek 2026-11-21 (selisih ≤ pembulatan 3 desimal).
+
+### #20 — 2026-11-21 — TF.js dimuat lazy
+`@tensorflow/tfjs` hanya diimpor (dynamic `import()`) oleh `src/lib/tfModel.ts` saat `model.json` benar-benar ada, sehingga mode mock tidak mengunduh ±220 kB gzip TF.js. Keberadaan model dicek dari isi JSON (`modelTopology`), bukan status HTTP, karena dev server dan rewrite Vercel menjawab file hilang dengan `index.html` (200).
+> Bagian awal keputusan ini (IndexedDB lewat `idb` untuk menu Rekam) dibatalkan oleh #21; `idb` dan `fake-indexeddb` sudah di-uninstall.
+
+### #21 — 2026-11-21 — Tanpa fitur rekam; model dilatih dari dataset publik
+Diputuskan pemilik: aplikasi **tidak** punya fitur rekam data. Halaman Rekam, `storage.ts`, `recorder.ts`, `SampleCounts.tsx`, dan menu Rekam dihapus; `idb` dan `fake-indexeddb` di-uninstall.
+**Abjad:** data utama Kaggle "Abjad Bahasa Isyarat Indonesia (BISINDO)" — Meisya Vira, 26 huruf × 25 foto, ODbL, sudah memuat dataset Achmad Noer (jangan ditambahkan lagi: duplikat bisa bocor ke data uji). Roboflow (#17) opsional, hanya data latih. Split 70/15/15 stratified.
+**Kata:** WL-BISINDO (#22).
+**Konsekuensi:** peraga sedikit dan dari dataset yang sama → akurasi uji cenderung optimistis untuk pengguna baru; dicatat sebagai keterbatasan di laporan. Tipe `Sample` dan `docs/examples/` tetap dipakai sebagai format hasil konversi di notebook (`recordedBy` = nama sumber).
+**Hubungan dengan #28:** skrip `training/record_dataset.py` dari kit v1.2 **ditunda**; dipakai hanya jika nanti diputuskan merekam kata yang tidak ada di dataset publik.
+
+### #22 — 2026-11-21 — Kosakata kamera = 32 gloss WL-BISINDO; gloss lama jadi `textOnly`
+Tidak ada dataset publik untuk 16 dari 25 gloss lama. `vocab.signs` = 32 gloss WL-BISINDO (Kindy, Leonali & Lucky, Procedia CS 269, 2025; CC BY-NC 4.0; variasi Banten) dengan urutan label dataset (0–31) + `_IDLE`; "Di mana" → `MANA`, "Terima kasih" → `TERIMA-KASIH`. Gloss lama yang tidak ada di dataset dipindah ke `vocab.textOnly`: tetap ada di `lexicon.json`, korpus evaluasi, dan validasi `/api/translate`, tetapi tidak dikenali kamera (bisa dieja `FS:`).
+**Alasan:** aturan Mode A (aspek, negasi, subjek default, R9 wajah) dan korpus terverifikasi tetap utuh, sementara kosakata kamera mengikuti data yang benar-benar ada.
+**Perubahan data:** lexicon +23 entri (kategori baru `time`, `adv`; "Tuli" kapital); rules v2: R4 + `MENGAPA`, `BAGAIMANA`, R5 + `BERANGKAT`, `DATANG`; `reference_rules.py` membaca daftar R4/R5 dari `rules.json`; mustPass +3, korpus +19 pasangan (p041–p059). Acuan: mustPass 11/11, wajah 3/3, mudah 50/50, sulit 2/9.
+**Fase 4 (catatan):** video (±30 fps) harus di-*resample* ke laju deteksi aplikasi (±10–15 fps di HP) sebelum dipotong 30 frame. `_IDLE` dari awal/akhir video + frame tanpa tangan. Pakai protokol signer-independent WL-BISINDO. Nama folder/label di Kaggle dicek saat konversi.
+**Keterbatasan:** tanpa `KAMU`, `SUDAH`, `TIDAK`, `MAU` di kamera, aturan aspek/negasi hanya bisa didemokan lewat teks/eval atau ejaan.
+
+### #23 — 2026-11-21 — Ekspor TF.js ditulis sendiri, tanpa paket `tensorflowjs`
+Di Colab (Python 3.13, NumPy 2) `import tensorflowjs` gagal: `np.object` (dihapus di NumPy 1.24), lalu `distutils` (dihapus di Python 3.12) lewat `tensorflow_hub`. Notebook menulis format *layers-model* sendiri lewat `save_tfjs_layers_model()`: `modelTopology` = `model.to_json()` dari tf_keras (Keras 2), bobot float32 little-endian dalam satu `group1-shard1of1.bin`, nama bobot `<layer>/<kernel|bias>`.
+**Verifikasi:** notebook membandingkan forward pass NumPy dari file ekspor dengan `model.predict` (selisih < 1e-4); `src/lib/tfModel.test.ts` memuat `model.json` bergaya tf_keras dan mencocokkan output dengan hitungan manual. Model abjad asli (2026-11-21) termuat di TF.js.
+**Batas:** cukup untuk Dense/Dropout. Untuk GRU (`signs`) cek ulang nama bobot (`gru/kernel`, `gru/recurrent_kernel`, `gru/bias`) dan `reset_after`.
+
+---
+
+Entri #24–#28 berasal dari kit PRD v1.1–v1.2 (semula bernomor #8–#12 di kit; dinomori ulang 2026-11-22 agar tidak bentrok dengan #8–#23 yang sudah dirujuk kode).
+
+### #24 — 2026-11-21 — Tambah deteksi ekspresi wajah (wajib, Fase 7)
+**Inspirasi:** demo TikTok "AI sign language to voice" (bcho): Hand Tracking → Emotion Detection → LLM Interpretation → Voice Output. Lihat `docs/REFERENCE-VIDEO.md`.
+**Alasan:** di BISINDO ekspresi wajah ikut menentukan makna, terutama kalimat tanya. `KAMU MAKAN SUDAH` + alis naik = "Kamu sudah makan?".
+**Cara:** MediaPipe FaceLandmarker blendshapes + aturan ambang (`emotion.json`), bukan model terlatih. Wajah diproses tiap 3 frame demi FPS.
+**Ditolak:** melatih classifier emosi sendiri (butuh dataset wajah, tidak sebanding dengan waktu).
+
+### #25 — 2026-11-21 — Suara: Azure Speech F0 (gratis) + fallback Web Speech
+**Alasan:** pemilik ingin suara gratis tapi bagus. Azure F0 memberi 0,5 juta karakter neural per bulan, suara `id-ID-GadisNeural` / `id-ID-ArdiNeural`, dan SSML `prosody` untuk nada per emosi. Web Speech tetap jadi cadangan offline.
+**Ditolak:** ElevenLabs (berbayar), Piper `id_ID-news_tts-medium` (hanya satu suara netral, butuh hosting sendiri).
+
+### #26 — 2026-11-21 — Tampilan 4 tahap di halaman Terjemah
+**Alasan:** membuat alur mesin penerjemah terlihat saat demo ke dosen. Kata tambahan hasil interpretasi diberi garis bawah.
+
+### #27 — 2026-11-21 — Halaman Belajar (F9) jadi opsional
+**Alasan:** memberi ruang waktu untuk F13 di Fase 7 tanpa memundurkan jadwal.
+
+### #28 — 2026-11-21 — Menu Rekam dihapus dari aplikasi
+**Keputusan pemilik:** aplikasi tidak memiliki menu/halaman Rekam Data. Menu tersisa: Terjemah, Percakapan, Belajar (opsional), Pengaturan.
+**Pengganti (kit v1.2):** skrip `training/record_dataset.py` di laptop. **Status 2026-11-22: ditunda** — pemilik memilih dataset publik (#21, #22). Jika skrip dibuat nanti, normalisasinya wajib identik dengan `features.ts` (126 fitur, koreksi aspek #19).

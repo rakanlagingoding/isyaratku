@@ -1,5 +1,5 @@
 {
-  "_note": "Gloss -> kata bahasa Indonesia + kategori. Kategori dipakai rules.json.",
+  "_note": "Gloss -> kata bahasa Indonesia + kategori. Kategori dipakai rules.json. Kata 'Tuli' ditulis kapital (identitas budaya komunitas Tuli).",
   "entries": {
     "HALO": {
       "word": "halo",
@@ -100,6 +100,98 @@
     "KAMPUS": {
       "word": "kampus",
       "cat": "place"
+    },
+    "AIR": {
+      "word": "air",
+      "cat": "noun"
+    },
+    "BELAJAR": {
+      "word": "belajar",
+      "cat": "verb"
+    },
+    "CARI": {
+      "word": "cari",
+      "cat": "verb"
+    },
+    "HARI": {
+      "word": "hari",
+      "cat": "noun"
+    },
+    "INGAT": {
+      "word": "ingat",
+      "cat": "verb"
+    },
+    "LAGI": {
+      "word": "lagi",
+      "cat": "adv"
+    },
+    "MOTOR": {
+      "word": "motor",
+      "cat": "noun"
+    },
+    "TULI": {
+      "word": "Tuli",
+      "cat": "adj"
+    },
+    "MENGAPA": {
+      "word": "mengapa",
+      "cat": "question"
+    },
+    "BAGAIMANA": {
+      "word": "bagaimana",
+      "cat": "question"
+    },
+    "MERAH": {
+      "word": "merah",
+      "cat": "adj"
+    },
+    "KUNING": {
+      "word": "kuning",
+      "cat": "adj"
+    },
+    "HIJAU": {
+      "word": "hijau",
+      "cat": "adj"
+    },
+    "HITAM": {
+      "word": "hitam",
+      "cat": "adj"
+    },
+    "DENGAR": {
+      "word": "dengar",
+      "cat": "verb"
+    },
+    "BERANGKAT": {
+      "word": "berangkat",
+      "cat": "verb"
+    },
+    "DATANG": {
+      "word": "datang",
+      "cat": "verb"
+    },
+    "TEMAN": {
+      "word": "teman",
+      "cat": "noun"
+    },
+    "KELUARGA": {
+      "word": "keluarga",
+      "cat": "noun"
+    },
+    "PAGI": {
+      "word": "pagi",
+      "cat": "time"
+    },
+    "SIANG": {
+      "word": "siang",
+      "cat": "time"
+    },
+    "SORE": {
+      "word": "sore",
+      "cat": "time"
+    },
+    "MALAM": {
+      "word": "malam",
+      "cat": "time"
     }
   },
   "categories": {
@@ -112,6 +204,8 @@
     "aspect": "penanda waktu/aspek/keinginan: sudah, belum, mau",
     "neg": "negasi: tidak",
     "question": "kata tanya",
-    "place": "tempat"
+    "place": "tempat",
+    "time": "keterangan waktu: pagi, siang, sore, malam",
+    "adv": "keterangan lain yang tetap di tempatnya: lagi"
   }
 }

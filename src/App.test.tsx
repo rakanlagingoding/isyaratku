@@ -11,13 +11,13 @@ const renderAt = (path: string) =>
   );
 
 describe('App layout', () => {
-  it('shows the five bottom nav tabs', () => {
+  it('shows the four bottom nav tabs', () => {
     renderAt('/pengaturan');
     const nav = screen.getByRole('navigation', { name: 'Navigasi utama' });
     const labels = within(nav)
       .getAllByRole('link')
       .map((link) => link.textContent);
-    expect(labels).toEqual(['Terjemah', 'Percakapan', 'Belajar', 'Rekam', 'Pengaturan']);
+    expect(labels).toEqual(['Terjemah', 'Percakapan', 'Belajar', 'Pengaturan']);
   });
 
   it('navigates between pages', () => {

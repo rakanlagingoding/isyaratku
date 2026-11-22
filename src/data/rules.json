@@ -1,6 +1,6 @@
 {
   "_note": "Aturan Mode A, diterapkan berurutan setelah gloss dipetakan ke kategori. Implementasi: src/lib/translator/ruleBased.ts.",
-  "version": 1,
+  "version": 2,
   "register": "santai",
   "defaultSubject": "saya",
   "rules": [
@@ -37,24 +37,28 @@
     },
     {
       "id": "R4_question_front",
-      "desc": "SIAPA dan KAPAN di akhir urutan dipindah ke awal. APA dan MANA tetap di akhir.",
+      "desc": "SIAPA, KAPAN, MENGAPA, dan BAGAIMANA di akhir urutan dipindah ke awal. APA dan MANA tetap di akhir.",
       "type": "moveToFront",
       "glosses": [
         "SIAPA",
-        "KAPAN"
+        "KAPAN",
+        "MENGAPA",
+        "BAGAIMANA"
       ],
       "onlyIfLast": true
     },
     {
       "id": "R5_place_preposition",
-      "desc": "Tempat setelah kata kerja gerak diberi 'ke'.",
+      "desc": "Tempat setelah kata kerja gerak (PERGI, PULANG, BERANGKAT, DATANG) diberi 'ke'.",
       "type": "insertBefore",
       "target": [
         "place"
       ],
       "afterGlosses": [
         "PERGI",
-        "PULANG"
+        "PULANG",
+        "BERANGKAT",
+        "DATANG"
       ],
       "insert": "ke"
     },
@@ -84,6 +88,12 @@
       "type": "punctuate",
       "question": "?",
       "default": "."
+    },
+    {
+      "id": "R9_face_question",
+      "desc": "Jika face.isQuestion true, akhiri kalimat dengan '?' walaupun tidak ada kata tanya. Emosi tidak mengubah kata di Mode A.",
+      "type": "faceQuestion",
+      "input": "face.isQuestion"
     }
   ],
   "mustPass": [
@@ -150,6 +160,68 @@
         "SUDAH"
       ],
       "expected": "Saya sudah makan."
+    },
+    {
+      "glosses": [
+        "TEMAN",
+        "DATANG",
+        "KAPAN"
+      ],
+      "expected": "Kapan teman datang?"
+    },
+    {
+      "glosses": [
+        "SAYA",
+        "DATANG",
+        "RUMAH",
+        "TEMAN"
+      ],
+      "expected": "Saya datang ke rumah teman."
+    },
+    {
+      "glosses": [
+        "SAYA",
+        "TULI"
+      ],
+      "expected": "Saya Tuli."
+    }
+  ],
+  "mustPassWithFace": [
+    {
+      "glosses": [
+        "KAMU",
+        "MAKAN",
+        "SUDAH"
+      ],
+      "face": {
+        "emotion": "netral",
+        "isQuestion": true
+      },
+      "expected": "Kamu sudah makan?"
+    },
+    {
+      "glosses": [
+        "KAMU",
+        "MAKAN",
+        "SUDAH"
+      ],
+      "face": {
+        "emotion": "netral",
+        "isQuestion": false
+      },
+      "expected": "Kamu sudah makan."
+    },
+    {
+      "glosses": [
+        "DIA",
+        "PULANG",
+        "SUDAH"
+      ],
+      "face": {
+        "emotion": "sedih",
+        "isQuestion": true
+      },
+      "expected": "Dia sudah pulang?"
     }
   ]
 }

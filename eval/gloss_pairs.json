@@ -1,5 +1,5 @@
 {
-  "_note": "Korpus uji gloss -> kalimat buatan sendiri. 'sulit' = di luar jangkauan aturan Mode A (koma tengah, konjungsi, urutan bebas, sufiks -nya). Tambah sampai 50-100 pasangan sebelum evaluasi akhir.",
+  "_note": "Korpus uji gloss -> kalimat buatan sendiri. 'sulit' = di luar jangkauan aturan Mode A (koma tengah, konjungsi, urutan bebas, sufiks -nya). Tambah sampai 50-100 pasangan sebelum evaluasi akhir. p041-p059 memakai kosakata WL-BISINDO (DECISIONS #22); 'sulit' p057-p058 menguji imbuhan me- (temuan paper Beyond BLEU).",
   "pairs": [
     {
       "id": "p001",
@@ -392,6 +392,195 @@
         "FS:SITI"
       ],
       "reference": "Namanya Siti.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p041",
+      "glosses": [
+        "SAYA",
+        "BELAJAR"
+      ],
+      "reference": "Saya belajar.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p042",
+      "glosses": [
+        "SAYA",
+        "TULI"
+      ],
+      "reference": "Saya Tuli.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p043",
+      "glosses": [
+        "TEMAN",
+        "DATANG",
+        "KAPAN"
+      ],
+      "reference": "Kapan teman datang?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p044",
+      "glosses": [
+        "TEMAN",
+        "DATANG",
+        "MENGAPA"
+      ],
+      "reference": "Mengapa teman datang?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p045",
+      "glosses": [
+        "SAYA",
+        "DATANG",
+        "RUMAH",
+        "TEMAN"
+      ],
+      "reference": "Saya datang ke rumah teman.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p046",
+      "glosses": [
+        "RUMAH",
+        "TEMAN",
+        "MANA"
+      ],
+      "reference": "Rumah teman di mana?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p047",
+      "glosses": [
+        "AIR",
+        "MANA"
+      ],
+      "reference": "Air di mana?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p048",
+      "glosses": [
+        "SAYA",
+        "MAKAN",
+        "PAGI",
+        "SUDAH"
+      ],
+      "reference": "Saya sudah makan pagi.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p049",
+      "glosses": [
+        "KELUARGA",
+        "SAYA",
+        "BAIK"
+      ],
+      "reference": "Keluarga saya baik.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p050",
+      "glosses": [
+        "SAYA",
+        "BERANGKAT",
+        "KAMPUS",
+        "SUDAH"
+      ],
+      "reference": "Saya sudah berangkat ke kampus.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p051",
+      "glosses": [
+        "MOTOR",
+        "SAYA",
+        "MERAH"
+      ],
+      "reference": "Motor saya merah.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p052",
+      "glosses": [
+        "SAYA",
+        "INGAT",
+        "TIDAK"
+      ],
+      "reference": "Saya tidak ingat.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p053",
+      "glosses": [
+        "KAMU",
+        "BELAJAR",
+        "BAGAIMANA"
+      ],
+      "reference": "Bagaimana kamu belajar?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p054",
+      "glosses": [
+        "TERIMA-KASIH",
+        "TEMAN"
+      ],
+      "reference": "Terima kasih, teman.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p055",
+      "glosses": [
+        "SAYA",
+        "MAKAN",
+        "LAGI",
+        "MAU"
+      ],
+      "reference": "Saya mau makan lagi.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p056",
+      "glosses": [
+        "HARI",
+        "APA"
+      ],
+      "reference": "Hari apa?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p057",
+      "glosses": [
+        "SAYA",
+        "CARI",
+        "MOTOR"
+      ],
+      "reference": "Saya mencari motor.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p058",
+      "glosses": [
+        "SAYA",
+        "DENGAR",
+        "TIDAK"
+      ],
+      "reference": "Saya tidak mendengar.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p059",
+      "glosses": [
+        "MALAM",
+        "SAYA",
+        "BELAJAR"
+      ],
+      "reference": "Malam ini saya belajar.",
       "difficulty": "sulit"
     }
   ]

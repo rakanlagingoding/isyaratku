@@ -1,11 +1,17 @@
-node_modules
-dist
-dist-ssr
-coverage
+node_modules/
+dist/
 .env
 .env.local
-.vercel
-# copied from node_modules by scripts/copy-mediapipe.mjs
-public/mediapipe
 *.log
+.vercel/
+__pycache__/
+training/data/
+coverage/
+dist-ssr/
 .DS_Store
+# copied from node_modules by scripts/copy-mediapipe.mjs
+public/mediapipe/
+# third-party datasets, downloaded locally (DECISIONS #17, #21, #22)
+datasets/
+# downloaded/extracted archives (kit, Colab exports)
+*.zip

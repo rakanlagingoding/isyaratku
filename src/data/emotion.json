@@ -1,0 +1,52 @@
+{
+  "_note": "Ambang blendshapes MediaPipe FaceLandmarker -> emosi. Diperiksa berurutan; yang pertama memenuhi menang. Bisa dikalibrasi.",
+  "order": [
+    "senang",
+    "marah",
+    "sedih",
+    "bertanya",
+    "netral"
+  ],
+  "rules": {
+    "senang": {
+      "avg": [
+        "mouthSmileLeft",
+        "mouthSmileRight"
+      ],
+      "gte": 0.5
+    },
+    "marah": {
+      "avg": [
+        "browDownLeft",
+        "browDownRight"
+      ],
+      "gte": 0.5
+    },
+    "sedih": {
+      "avg": [
+        "mouthFrownLeft",
+        "mouthFrownRight"
+      ],
+      "gte": 0.4
+    },
+    "bertanya": {
+      "avg": [
+        "browInnerUp"
+      ],
+      "gte": 0.5
+    }
+  },
+  "sentence": {
+    "minShareNonNeutral": 0.3,
+    "questionWindowMs": 1000,
+    "questionMinShare": 0.3
+  },
+  "runEveryNFrames": 3,
+  "labels": {
+    "netral": "Netral",
+    "senang": "Senang",
+    "sedih": "Sedih",
+    "marah": "Marah",
+    "bertanya": "Bertanya"
+  }
+}

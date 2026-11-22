@@ -28,10 +28,10 @@ lalu jelaskan cara deploy ke Vercel dan menguji kamera di HP.
 ## Fase 2 — Abjad jari
 
 ```
-Kerjakan Fase 2: F2 features.ts dengan unit test normalisasi, F10 halaman Rekam Data + ekspor JSON
-(format sama dengan docs/examples/sample-letters.example.json), dan F3 classifier.ts dengan mode mock.
-Buat juga training/train_letters.ipynb yang membaca file ekspor dan mengekspor model ke public/models/letters/.
-Label harus mengikuti urutan src/data/vocab.json.
+Kerjakan Fase 2: F2 features.ts dengan unit test normalisasi dan F3 classifier.ts dengan mode mock.
+Ingat: aplikasi TIDAK punya menu Rekam.
+Buat juga training/train_letters.ipynb yang mengubah dataset publik abjad (PRD 11.1) ke landmark
+dan mengekspor model ke public/models/letters/. Label harus mengikuti urutan src/data/vocab.json.
 ```
 
 ## Fase 3 — Suara dan PWA
@@ -44,7 +44,8 @@ F7 halaman Terjemah versi awal, dan F12 PWA. Perbarui PROGRESS.md.
 ## Fase 4–5 — Model kata
 
 ```
-Kerjakan Fase 4 dan 5: training/train_signs.ipynb (GRU, augmentasi sesuai PRD 11.2)
+Kerjakan Fase 4 dan 5: training/train_signs.ipynb yang mengubah video WL-BISINDO ke landmark
+(resample ke laju deteksi aplikasi, DECISIONS #22), GRU + augmentasi sesuai PRD 11.2,
 dan F4 segmenter penuh dengan unit test urutan prediksi sintetis.
 ```
 
@@ -57,11 +58,29 @@ Lalu Mode B (api/translate.ts + fallback ke Mode A), dan eval/run_eval.ts yang m
 untuk Mode A dan Mode B pada eval/gloss_pairs.json, hasil ke eval/results.csv, dipisah per difficulty.
 ```
 
-## Fase 7 — Percakapan dan penyempurnaan
+## Fase 7a — Ekspresi wajah
 
 ```
-Kerjakan Fase 7: F8 Percakapan (STT), F9 Belajar, F11 Pengaturan, lalu profil performa di HP
-dan terapkan resolusi adaptif jika FPS < 12.
+Kerjakan bagian F13 dari Fase 7: face.ts (FaceLandmarker, tiap 3 frame) dan emotion.ts
+memakai src/data/emotion.json, dengan unit test blendshapes sintetis. Lalu sambungkan SentenceFace
+ke translator: R9 di Mode A (kasus mustPassWithFace di rules.json wajib lolos) dan emotion + isQuestion di Mode B.
+Jangan sentuh TTS dan UI dulu.
+```
+
+## Fase 7b — Suara dan tampilan 4 tahap
+
+```
+Kerjakan F6 versi Azure (api/tts.ts, SSML prosody dari src/data/prosody.json, fallback Web Speech)
+dan F7 tampilan 4 tahap (StageBar, EmotionBadge, TranslationText dengan garis bawah addedWords).
+Tunjukkan cara mengisi AZURE_SPEECH_KEY di Vercel.
+```
+
+## Fase 7c — Percakapan dan penyempurnaan
+
+```
+Kerjakan F8 Percakapan (STT) dan F11 Pengaturan (termasuk kalibrasi wajah netral),
+lalu profil performa di HP dengan tangan + wajah aktif dan terapkan resolusi adaptif jika FPS < 12.
+F9 Belajar hanya jika saya minta.
 ```
 
 ## Perintah bantu

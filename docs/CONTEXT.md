@@ -42,7 +42,8 @@ Mikrofon -> SpeechRecognition id-ID -> teks besar
 
 - Semua pengenalan isyarat **di browser HP**. Video tidak pernah dikirim ke server.
 - Server hanya untuk Mode B (`api/translate.ts`), dan Mode A selalu jadi fallback.
-- Detail lengkap: `PRD.md` (F1–F12) dan `docs/DECISIONS.md`.
+- Arsitektur ini diperluas menjadi 4 tahap (tambah ekspresi wajah dan TTS Azure), lihat bagian 4b.
+- Detail lengkap: `PRD.md` (F1–F13) dan `docs/DECISIONS.md`. Video inspirasi: `docs/REFERENCE-VIDEO.md`.
 
 ## 4. Pengaruh paper "Beyond BLEU" terhadap project
 
@@ -60,18 +61,34 @@ Temuan paper yang **diterapkan di project**:
 | Kesalahan khas: imbuhan me- hilang, register campur | Dijadikan poin pengecekan di evaluasi |
 | Temperature 0,8 terlalu tinggi untuk terjemahan | Mode B memakai temperature 0–0,2 |
 
+## 4b. Inspirasi video dan perluasan cakupan (21 Nov 2026)
+
+Pemilik menunjukkan video TikTok (kreator bcho, "What if AI could translate sign language into voice?")
+berisi prototipe ASL → suara dengan 4 tahap: Hand Tracking (MediaPipe 21 titik/tangan + 468 titik wajah),
+Emotion Detection (Happy/Questioning/Angry/Neutral/Skeptical), LLM Interpretation (gloss + emosi → kalimat,
+kata hasil modifikasi digarisbawahi), Voice Output (ElevenLabs, nada sesuai emosi).
+
+Pemilik ingin membuat yang serupa. Keputusan pemilik:
+
+1. **Deteksi ekspresi wajah = fitur wajib**, dikerjakan di Fase 7 (F13). Dipakai untuk kalimat tanya dan nada.
+2. **Suara gratis tapi bagus** → Azure Speech tier F0 (neural id-ID, SSML prosody) + fallback Web Speech. Bukan ElevenLabs.
+3. **Tampilan 4 tahap** (Tangan · Ekspresi · Interpretasi · Suara) jadi tampilan utama halaman Terjemah.
+
+Konsekuensi: F9 Belajar menjadi opsional. Detail di PRD v1.1 dan `docs/DECISIONS.md` #24–#27.
+
+Tambahan (PRD v1.2): **menu Rekam dihapus dari aplikasi** atas permintaan pemilik (`docs/DECISIONS.md` #28).
+Tambahan (PRD v1.3, 22 Nov): data latih dari **dataset publik** — Kaggle untuk abjad, WL-BISINDO untuk kata (#21, #22); skrip `training/record_dataset.py` ditunda.
+Perbedaan dengan video: IsyaratKu memakai **BISINDO + bahasa Indonesia** dan berjalan di **HP**, bukan laptop.
+
 ## 5. Status saat dokumen ini dibuat (21 Nov 2026)
 
 - ✅ Rancangan + rencana kerja 8 minggu (23 Nov 2026 – 17 Jan 2027).
-- ✅ `PRD.md`, `CLAUDE.md`, dan starter kit (`docs/`, `src/data/`, `eval/`) sudah dibuat.
-- ✅ Aturan Mode A sudah diverifikasi dengan `eval/reference_rules.py`: mustPass 8/8, mudah 34/34, sulit 2/6.
-- ⬜ **Belum ada kode aplikasi.** Repo baru berisi dokumen dan data awal.
-- ⬜ Sesi 0 (cek pemahaman agent) belum dijalankan.
-- ⬜ Fase berikutnya: **Fase 1** (lihat `docs/PROGRESS.md`).
+- ✅ `PRD.md` (v1.2), `CLAUDE.md`, dan starter kit (`docs/`, `src/data/`, `eval/`) sudah dibuat.
+- ✅ Aturan Mode A sudah diverifikasi dengan `eval/reference_rules.py`: mustPass 8/8, mustPassWithFace 3/3, mudah 34/34, sulit 2/6.
 
-> **Pembaruan 21 Nov 2026:** daftar di atas adalah kondisi saat perencanaan. Kode Fase 1 (setup, layout + BottomNav,
-> F1 kamera + overlay MediaPipe) sudah ditulis; tinggal deploy Vercel dan verifikasi di HP.
-> Status terkini selalu ada di `docs/PROGRESS.md`, bukan di dokumen ini.
+> **Pembaruan 22 Nov 2026:** daftar di atas adalah kondisi saat perencanaan. Fase 1 selesai (deploy ditunda, #18),
+> Fase 2 hampir selesai (model abjad 93,5%). Acuan Mode A setelah kosakata WL-BISINDO: mustPass 11/11, wajah 3/3,
+> mudah 50/50, sulit 2/9. Status terkini selalu ada di `docs/PROGRESS.md`, bukan di dokumen ini.
 
 ## 6. Hal yang DITUNDA (jangan dikerjakan tanpa diminta)
 
@@ -95,6 +112,7 @@ Percakapan perencanaan juga membahas hal lain yang **tidak boleh** dicampur ke r
 
 - Tenggat final pengumpulan dari dosen (jadwal mengasumsikan pertengahan Januari 2027).
 - Penyedia LLM untuk Mode B (`LLM_BASE_URL`, `LLM_MODEL`).
+- Akun Azure untuk Speech F0 (`AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`).
 - Referensi kosakata BISINDO dan siapa yang memvalidasi.
 - Spesifikasi laptop dan HP yang dipakai untuk uji.
 - Apakah project ini individu atau kelompok (sejauh ini diasumsikan **individu**).

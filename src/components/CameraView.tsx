@@ -27,10 +27,10 @@ type DebugStats = {
 
 type Props = {
   /**
-   * Called once per detection with One-Euro-smoothed landmarks.
-   * Later phases feed this into features/segmenter.
+   * Called once per detection with One-Euro-smoothed landmarks and the video aspect ratio
+   * (width / height), which `toFeatures` needs to make x and y comparable (DECISIONS #19).
    */
-  onFrame?: (frame: HandFrame) => void;
+  onFrame?: (frame: HandFrame, aspect: number) => void;
 };
 
 const STAGE_TEXT: Record<LoadStage, string> = {
@@ -207,7 +207,9 @@ export default function CameraView({ onFrame }: Props) {
           }
           const frame = smoother.apply(toHandFrame(msg, msg.timestamp));
           target = frame;
-          onFrameRef.current?.(frame);
+          const v = videoRef.current;
+          const aspect = v && v.videoHeight > 0 ? v.videoWidth / v.videoHeight : 1;
+          onFrameRef.current?.(frame, aspect);
 
           detectMsAvg = detectMsAvg === 0 ? msg.detectMs : detectMsAvg * 0.9 + msg.detectMs * 0.1;
           const fps = meter.tick(msg.timestamp);

@@ -28,7 +28,7 @@ export type Sample = {
   id: string; // uuid
   label: string;
   kind: RecognitionMode;
-  frames: number[][]; // letters: 1 x 63, signs: 30 x 126
+  frames: number[][]; // letters: 1 x 126, signs: 30 x 126
   recordedBy: string; // recorder initials
   createdAt: string; // ISO
 };

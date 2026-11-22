@@ -45,16 +45,6 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    to: '/rekam',
-    label: 'Rekam',
-    icon: (
-      <svg {...iconProps}>
-        <circle cx="12" cy="12" r="9" />
-        <circle cx="12" cy="12" r="4" fill="currentColor" />
-      </svg>
-    ),
-  },
-  {
     to: '/pengaturan',
     label: 'Pengaturan',
     icon: (

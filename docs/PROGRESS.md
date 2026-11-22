@@ -2,52 +2,61 @@
 
 Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi tanggal, catat bug.
 
-**Fase aktif:** Fase 1
-**Terakhir diperbarui:** 2026-11-21
+**Fase aktif:** Fase 2 (model abjad terpasang; menunggu uji realtime di HP)
+**Terakhir diperbarui:** 2026-11-22 (kit PRD v1.2 digabung dengan hasil Fase 1–2; data kata = WL-BISINDO, DECISIONS #21–#22)
 
 ## Fase 1 — Fondasi (23–29 Nov 2026)
 
 - [x] Setup Vite + React + TS + Tailwind + React Router + Zustand (2026-11-19)
-- [x] ESLint + Prettier + Vitest berjalan (2026-11-19; 26 tes lolos)
-- [x] Layout dasar + `BottomNav` (Terjemah, Percakapan, Belajar, Rekam, Pengaturan) (2026-11-19)
-- [x] F1: `CameraView` kamera depan + overlay titik tangan MediaPipe (2026-11-19; kode selesai, belum diuji di HP)
-- [ ] Deploy ke Vercel, uji di HP via HTTPS — perlu akun Vercel pemilik
-- [ ] Verifikasi di HP: ≥ 15 FPS (aktifkan Mode debug), izin kamera ditolak → pesan + tombol "Coba lagi", label kiri/kanan sesuai tangan asli (DECISIONS #10)
+- [x] ESLint + Prettier + Vitest berjalan (2026-11-19)
+- [x] Layout dasar + `BottomNav` (Terjemah, Percakapan, Belajar, Pengaturan). **Tidak ada menu Rekam** (dihapus 2026-11-21, DECISIONS #21, #28)
+- [x] F1: `CameraView` kamera depan + overlay titik tangan MediaPipe (2026-11-19; worker, One Euro, aset sendiri: DECISIONS #12–#15)
+- [ ] ~~Deploy ke Vercel~~ — **ditunda** (DECISIONS #18); demo lewat `npm run dev` lokal
+- [x] Uji di HP via HTTPS lokal (`https://192.168.1.6:5173`) (2026-11-21): kamera + titik tangan tampil; deteksi terasa lambat (lihat Bug)
+- [ ] Verifikasi angka: ≥ 15 FPS, izin ditolak → pesan + "Coba lagi", label kiri/kanan (DECISIONS #10) — dibawa ke optimasi Fase 7
 
 ## Fase 2 — Abjad jari (30 Nov–6 Des)
 
-- [ ] F2: `features.ts` + unit test normalisasi
-- [ ] F10: halaman Rekam Data + ekspor JSON
-- [ ] F3: `classifier.ts` dengan mode mock
-- [ ] Rekam dataset abjad A–Z, latih `letters` di Colab, ekspor ke `public/models/letters/`
+- [x] F2: `features.ts` + unit test normalisasi (2026-11-21; 126 fitur dua tangan #16, koreksi rasio aspek #19)
+- [x] ~~F10 menu Rekam~~ — dibuat lalu **dihapus** 2026-11-21 (DECISIONS #21); `record_dataset.py` dari kit **ditunda** (#28)
+- [x] F3: `classifier.ts` dengan mode mock (2026-11-21; TF.js lazy #20; badge "Model belum dimuat" + prediksi huruf di Mode debug)
+- [x] `training/train_letters.ipynb` + `training/README.md` (2026-11-21; dataset Kaggle Meisya Vira + Roboflow opsional; ekspor manual #23)
+- [x] Latih `letters` di Colab, model di `public/models/letters/` (2026-11-21; akurasi uji 93,5%, 93 sampel; dimuat TF.js OK)
+- [ ] Uji realtime di HP: huruf terdeteksi dengan model (Mode debug di halaman Terjemah)
 
 ## Fase 3 — Suara dan PWA (7–13 Des)
 
-- [ ] F6: `speech.ts` (TTS)
+- [ ] F6: `speech.ts` TTS versi Web Speech + `prosody.json` (Azure menyusul di Fase 7)
 - [ ] F4: mode eja (huruf → gloss `FS:`)
-- [ ] F7: halaman Terjemah versi awal
+- [ ] F7: halaman Terjemah versi awal (chip gloss + indikator keyakinan, lihat `docs/REFERENCE-VIDEO.md`)
 - [ ] F12: PWA installable
 
 ## Fase 4 — Dataset kata (14–20 Des)
 
-- [ ] Rekam 25 gloss + `_IDLE`, ≥ 30 sampel per label, ≥ 3 perekam
-- [ ] Notebook `train_signs.ipynb` + augmentasi
+- [x] Cari dataset BISINDO kata tambahan (2026-11-22). Kandidat utama: Mendeley `yzhzkzbnmw` (Binus, CC BY 4.0) — 40 kata × 60 sampel, `.npy` bentuk (30, 447) float64 landmark MediaPipe yang sudah dinormalisasi; memuat KAMU, DIA, HALO, MINUM, BAIK. Tata letak 447 kolom dan normalisasinya belum diketahui (cek paper/gambar struktur folder). Menunggu keputusan pemilik.
+- [ ] Unduh WL-BISINDO (Kaggle, 2,16 GB), konversi video → landmark (resample ke laju deteksi aplikasi, `_IDLE` dari awal/akhir video; DECISIONS #22)
+- [ ] Notebook `train_signs.ipynb` + augmentasi, uji signer-independent
 
 ## Fase 5 — Model kata (21–27 Des)
 
-- [ ] Latih dan ekspor model `signs`
+- [ ] Latih dan ekspor model `signs` (cek nama bobot GRU, DECISIONS #23)
 - [ ] F4: segmenter penuh (window 30 frame, akhir kalimat)
 
 ## Fase 6 — Mesin penerjemah (28 Des–3 Jan)
 
-- [ ] F5 Mode A: `ruleBased.ts` lolos semua tes contoh PRD
-- [ ] F5 Mode B: `api/translate.ts` + fallback
+- [ ] F5 Mode A: `ruleBased.ts` lolos semua tes contoh PRD (mustPass 11 + mustPassWithFace 3)
+- [ ] F5 Mode B: `api/translate.ts` + fallback (cara menjalankan API lokal, DECISIONS #18)
 - [ ] `eval/run_eval.ts`: BLEU + chrF Mode A vs B
 
-## Fase 7 — Percakapan dan penyempurnaan (4–10 Jan)
+## Fase 7 — Ekspresi, suara, 4 tahap, percakapan (4–10 Jan)
 
-- [ ] F8 Percakapan, F9 Belajar, F11 Pengaturan
-- [ ] Optimasi ≥ 15 FPS
+- [ ] F13: `face.ts` + `emotion.ts` + unit test blendshapes sintetis
+- [ ] Emosi ke translator: R9 (alis naik → `?`) di Mode A, emosi + isQuestion di prompt Mode B
+- [ ] F6: `api/tts.ts` Azure SSML + fallback Web Speech
+- [ ] F7: `StageBar` 4 tahap, `EmotionBadge`, `TranslationText` (garis bawah kata tambahan)
+- [ ] F8 Percakapan, F11 Pengaturan (termasuk kalibrasi wajah netral)
+- [ ] Optimasi ≥ 15 FPS dengan tangan + wajah aktif
+- [ ] (Opsional) F9 Belajar
 
 ## Fase 8 — Uji dan laporan (11–17 Jan)
 
@@ -58,22 +67,19 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 | Metrik | Target | Hasil | Tanggal |
 | --- | --- | --- | --- |
-| Akurasi abjad | ≥ 90% | – | – |
+| Akurasi abjad | ≥ 90% | 93,5% (split uji Kaggle, 93 sampel, 3–4/huruf; peraga bisa sama dengan data latih) | 2026-11-21 |
 | Akurasi kata | ≥ 80% | – | – |
 | BLEU / chrF Mode A | – | – | – |
 | BLEU / chrF Mode B | > Mode A | – | – |
 | FPS di HP | ≥ 15 | – | – |
 | Latensi isyarat → suara | ≤ 2 dtk | – | – |
+| Deteksi kalimat tanya dari wajah | ≥ 80% benar | – | – |
 | SUS | ≥ 68 | – | – |
 
 ## Bug dan catatan
 
-- 2026-11-20: laptop (Edge) 4 FPS, deteksi 226 ms dengan delegate GPU; iPhone 13 lancar. Penyebab: Edge memakai `Microsoft Basic Render Driver` (GPU software); Chrome di laptop yang sama memakai AMD Radeon (GPU 9 ms). Perbaikan: kalibrasi GPU vs CPU (#12) → Edge 11 FPS via CPU; deteksi dipindah ke Web Worker (#13) + penghalusan titik (#14). Menunggu uji ulang di laptop dan HP.
-- Uji Chrome headless: kolom resolusi debug menampilkan `2×2` dengan kamera palsu; di perangkat nyata sebelumnya `640×480`. Cek ulang saat uji di HP.
-
-- Fase 1: file di luar struktur PRD: `src/lib/fps.ts` (pengukur FPS), `src/components/PlaceholderPage.tsx` (halaman sementara), `src/test/setup.ts`.
-- Fase 1: halaman Pengaturan baru berisi toggle Mode debug; pengaturan F11 lainnya di Fase 7.
-- Fase 1: MediaPipe WASM + model kini di-host sendiri (DECISIONS #15); tetap butuh koneksi ke server app sampai F12 (Fase 3).
-- 2026-11-20: loading dipercepat (DECISIONS #15). Headless Chrome: deteksi pertama dingin 10,5 dtk (kompilasi shader GPU), hangat 1,5 dtk. Menunggu uji di laptop/HP; lihat baris `deteksi pertama` di overlay debug.
-- Abjad dua tangan diputuskan (DECISIONS #16); perubahan PRD menunggu persetujuan sebelum Fase 2.
-- 2026-11-21: dokumen dirapikan — `CONTEXT.md` dipindah ke `docs/`, `CLAUDE.md` dan `docs/PROMPTS.md` disamakan dengan versi terbaru (merujuk `docs/CONTEXT.md`). Saat ini 48 tes lolos, build OK.
+- 2026-11-22: kit PRD v1.2 (`isyaratku-kit.zip`) diekstrak ke repo dan menimpa dokumen + data yang belum di-commit. Dipulihkan: DECISIONS #8–#23 (entri kit dinomori ulang #24–#28), PROGRESS, vocab/lexicon/rules/gloss_pairs WL-BISINDO (R9 wajah dari kit dipertahankan), `.gitignore`. **Commit sesudah perubahan besar** agar tidak terulang.
+- 2026-11-21: model abjad dilatih di Colab (tf_keras 2.21, ekspor manual #23). Recall terendah: B dan Y (0,67), L/M/Q/U (0,75). Persentase foto terdeteksi MediaPipe belum dicatat.
+- 2026-11-21 (uji HP, dev lokal): deteksi jari terasa lambat. Log: `HandLandmarker CPU delegate failed` saat kalibrasi (jatuh ke GPU), `Camera failed to open` sekali sebelum berhasil. Model HP dan angka FPS belum dicatat. Ditangani di Fase 7.
+- Fitur dinormalisasi per tangan, jadi posisi antar-dua-tangan tidak terekam. Jika abjad dua tangan sering tertukar, pertimbangkan fitur posisi relatif (perlu keputusan + ubah PRD).
+- 2026-11-20: laptop (Edge) 4 FPS dengan delegate GPU karena `Microsoft Basic Render Driver`; diperbaiki dengan kalibrasi GPU vs CPU (#12), worker (#13), penghalusan (#14).

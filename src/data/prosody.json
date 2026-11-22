@@ -1,0 +1,29 @@
+{
+  "_note": "Emosi -> nada suara. Azure: nilai persen ke SSML <prosody pitch rate>. Web Speech: pitch = 1 + pitchPct/100, rate = 1 + ratePct/100.",
+  "azureVoices": {
+    "perempuan": "id-ID-GadisNeural",
+    "laki-laki": "id-ID-ArdiNeural"
+  },
+  "emotions": {
+    "netral": {
+      "pitchPct": 0,
+      "ratePct": 0
+    },
+    "senang": {
+      "pitchPct": 8,
+      "ratePct": 5
+    },
+    "sedih": {
+      "pitchPct": -8,
+      "ratePct": -12
+    },
+    "marah": {
+      "pitchPct": 3,
+      "ratePct": 8
+    },
+    "bertanya": {
+      "pitchPct": 4,
+      "ratePct": 0
+    }
+  }
+}

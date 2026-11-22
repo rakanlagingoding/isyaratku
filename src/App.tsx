@@ -3,7 +3,6 @@ import BottomNav from './components/BottomNav';
 import TranslatePage from './pages/TranslatePage';
 import ConversationPage from './pages/ConversationPage';
 import LearnPage from './pages/LearnPage';
-import RecordPage from './pages/RecordPage';
 import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
@@ -14,7 +13,6 @@ export default function App() {
           <Route path="/" element={<TranslatePage />} />
           <Route path="/percakapan" element={<ConversationPage />} />
           <Route path="/belajar" element={<LearnPage />} />
-          <Route path="/rekam" element={<RecordPage />} />
           <Route path="/pengaturan" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
