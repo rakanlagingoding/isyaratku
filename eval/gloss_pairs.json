@@ -1,5 +1,5 @@
 {
-  "_note": "Korpus uji gloss -> kalimat buatan sendiri. 'sulit' = di luar jangkauan aturan Mode A (koma tengah, konjungsi, urutan bebas, sufiks -nya). Tambah sampai 50-100 pasangan sebelum evaluasi akhir. p041-p059 memakai kosakata WL-BISINDO (DECISIONS #22); 'sulit' p057-p058 menguji imbuhan me- (temuan paper Beyond BLEU).",
+  "_note": "Korpus uji gloss -> kalimat buatan sendiri. 'sulit' = di luar jangkauan aturan Mode A (koma tengah, konjungsi, urutan bebas, sufiks -nya). Tambah sampai 50-100 pasangan sebelum evaluasi akhir. p041-p059 memakai kosakata WL-BISINDO (DECISIONS #22); 'sulit' p057-p058 menguji imbuhan me- (temuan paper Beyond BLEU). p060-p072 memakai kosakata Mendeley yzhzkzbnmw (DECISIONS #29).",
   "pairs": [
     {
       "id": "p001",
@@ -581,6 +581,131 @@
         "BELAJAR"
       ],
       "reference": "Malam ini saya belajar.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p060",
+      "glosses": [
+        "HALO",
+        "APA-KABAR"
+      ],
+      "reference": "Halo, apa kabar?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p061",
+      "glosses": [
+        "KAMU",
+        "KEMANA"
+      ],
+      "reference": "Kamu ke mana?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p062",
+      "glosses": [
+        "SELAMAT-PAGI"
+      ],
+      "reference": "Selamat pagi.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p063",
+      "glosses": [
+        "SELAMAT-MALAM",
+        "TEMAN"
+      ],
+      "reference": "Selamat malam, teman.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p064",
+      "glosses": [
+        "KAMI",
+        "MAKAN",
+        "SUDAH"
+      ],
+      "reference": "Kami sudah makan.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p065",
+      "glosses": [
+        "MEREKA",
+        "TIDUR",
+        "BELUM"
+      ],
+      "reference": "Mereka belum tidur.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p066",
+      "glosses": [
+        "DIA",
+        "MARAH",
+        "TIDAK"
+      ],
+      "reference": "Dia tidak marah.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p067",
+      "glosses": [
+        "KITA",
+        "BELAJAR",
+        "MAU"
+      ],
+      "reference": "Kita mau belajar.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p068",
+      "glosses": [
+        "DIA",
+        "DUDUK",
+        "MANA"
+      ],
+      "reference": "Dia duduk di mana?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p069",
+      "glosses": [
+        "SAYA",
+        "MEMBACA"
+      ],
+      "reference": "Saya membaca.",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p070",
+      "glosses": [
+        "KAMU",
+        "MAKAN",
+        "KAPAN"
+      ],
+      "reference": "Kapan kamu makan?",
+      "difficulty": "mudah"
+    },
+    {
+      "id": "p071",
+      "glosses": [
+        "KAMI",
+        "TIDUR",
+        "MALAM",
+        "SUDAH"
+      ],
+      "reference": "Kami sudah tidur tadi malam.",
+      "difficulty": "sulit"
+    },
+    {
+      "id": "p072",
+      "glosses": [
+        "KAMU",
+        "SENANG",
+        "BINGUNG"
+      ],
+      "reference": "Kamu senang atau bingung?",
       "difficulty": "sulit"
     }
   ]

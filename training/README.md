@@ -6,7 +6,7 @@ Notebook dijalankan di **Google Colab** (gratis, tanpa instalasi). Hasilnya mode
 | Notebook | Model | Data | Output ke |
 | --- | --- | --- | --- |
 | `train_letters.ipynb` | abjad (MLP), 1 × 126 | Kaggle abjad BISINDO (+ Roboflow opsional) | `public/models/letters/` |
-| `train_signs.ipynb` | kata (GRU), 30 × 126 — Fase 4 | WL-BISINDO | `public/models/signs/` |
+| `train_signs.ipynb` | kata (GRU), 30 × 126 — Fase 4 | WL-BISINDO + Mendeley BISINDO NMM | `public/models/signs/` |
 
 ## Alur abjad
 
@@ -36,3 +36,5 @@ Notebook dijalankan di **Google Colab** (gratis, tanpa instalasi). Hasilnya mode
 - BISINDO, *BISINDO Dataset* v3, Roboflow Universe, 2022 — CC BY 4.0 (jika dipakai).
 - G. O. Kindy, G. Leonali, H. Lucky, "Word-Level BISINDO: A Novel Video Indonesian Sign Language Dataset and Baseline
   Methods", *Procedia Computer Science* 269 (2025) 249–258, doi:10.1016/j.procs.2025.08.277 — CC BY-NC 4.0.
+- R. Ramadhana, N. Ho, J. Luman, R. Sutoyo, *Indonesian Sign Language (BISINDO) Dataset: Landmark Extraction for
+  capturing Non-Manual Markers*, Mendeley Data v3, doi:10.17632/yzhzkzbnmw.3 — CC BY 4.0.

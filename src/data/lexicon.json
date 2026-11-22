@@ -192,6 +192,110 @@
     "MALAM": {
       "word": "malam",
       "cat": "time"
+    },
+    "APA-KABAR": {
+      "word": "apa kabar",
+      "cat": "question"
+    },
+    "BERAPA": {
+      "word": "berapa",
+      "cat": "question"
+    },
+    "KEMANA": {
+      "word": "ke mana",
+      "cat": "question"
+    },
+    "KALIAN": {
+      "word": "kalian",
+      "cat": "pronoun"
+    },
+    "KAMI": {
+      "word": "kami",
+      "cat": "pronoun"
+    },
+    "KITA": {
+      "word": "kita",
+      "cat": "pronoun"
+    },
+    "MEREKA": {
+      "word": "mereka",
+      "cat": "pronoun"
+    },
+    "BERDIRI": {
+      "word": "berdiri",
+      "cat": "verb"
+    },
+    "DUDUK": {
+      "word": "duduk",
+      "cat": "verb"
+    },
+    "MANDI": {
+      "word": "mandi",
+      "cat": "verb"
+    },
+    "TIDUR": {
+      "word": "tidur",
+      "cat": "verb"
+    },
+    "MELIHAT": {
+      "word": "melihat",
+      "cat": "verb"
+    },
+    "MEMBACA": {
+      "word": "membaca",
+      "cat": "verb"
+    },
+    "MENULIS": {
+      "word": "menulis",
+      "cat": "verb"
+    },
+    "BINGUNG": {
+      "word": "bingung",
+      "cat": "adj"
+    },
+    "MARAH": {
+      "word": "marah",
+      "cat": "adj"
+    },
+    "SEDIH": {
+      "word": "sedih",
+      "cat": "adj"
+    },
+    "SENANG": {
+      "word": "senang",
+      "cat": "adj"
+    },
+    "RAMAH": {
+      "word": "ramah",
+      "cat": "adj"
+    },
+    "SABAR": {
+      "word": "sabar",
+      "cat": "adj"
+    },
+    "TINGGI": {
+      "word": "tinggi",
+      "cat": "adj"
+    },
+    "PENDEK": {
+      "word": "pendek",
+      "cat": "adj"
+    },
+    "SELAMAT-PAGI": {
+      "word": "selamat pagi",
+      "cat": "greeting"
+    },
+    "SELAMAT-SIANG": {
+      "word": "selamat siang",
+      "cat": "greeting"
+    },
+    "SELAMAT-SORE": {
+      "word": "selamat sore",
+      "cat": "greeting"
+    },
+    "SELAMAT-MALAM": {
+      "word": "selamat malam",
+      "cat": "greeting"
     }
   },
   "categories": {

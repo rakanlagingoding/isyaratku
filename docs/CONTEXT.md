@@ -77,7 +77,7 @@ Pemilik ingin membuat yang serupa. Keputusan pemilik:
 Konsekuensi: F9 Belajar menjadi opsional. Detail di PRD v1.1 dan `docs/DECISIONS.md` #24–#27.
 
 Tambahan (PRD v1.2): **menu Rekam dihapus dari aplikasi** atas permintaan pemilik (`docs/DECISIONS.md` #28).
-Tambahan (PRD v1.3, 22 Nov): data latih dari **dataset publik** — Kaggle untuk abjad, WL-BISINDO untuk kata (#21, #22); skrip `training/record_dataset.py` ditunda.
+Tambahan (PRD v1.3, 22 Nov): data latih dari **dataset publik** — Kaggle untuk abjad, WL-BISINDO untuk kata (#21, #22), ditambah Mendeley BISINDO NMM 40 kata (#29); skrip `training/record_dataset.py` ditunda.
 Perbedaan dengan video: IsyaratKu memakai **BISINDO + bahasa Indonesia** dan berjalan di **HP**, bukan laptop.
 
 ## 5. Status saat dokumen ini dibuat (21 Nov 2026)

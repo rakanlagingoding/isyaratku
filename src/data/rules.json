@@ -37,7 +37,7 @@
     },
     {
       "id": "R4_question_front",
-      "desc": "SIAPA, KAPAN, MENGAPA, dan BAGAIMANA di akhir urutan dipindah ke awal. APA dan MANA tetap di akhir.",
+      "desc": "SIAPA, KAPAN, MENGAPA, dan BAGAIMANA di akhir urutan dipindah ke awal. Kata tanya lain (APA, MANA, BERAPA, KEMANA, APA-KABAR) tetap di tempatnya.",
       "type": "moveToFront",
       "glosses": [
         "SIAPA",
@@ -184,6 +184,21 @@
         "TULI"
       ],
       "expected": "Saya Tuli."
+    },
+    {
+      "glosses": [
+        "HALO",
+        "APA-KABAR"
+      ],
+      "expected": "Halo, apa kabar?"
+    },
+    {
+      "glosses": [
+        "KAMU",
+        "MAKAN",
+        "KAPAN"
+      ],
+      "expected": "Kapan kamu makan?"
     }
   ],
   "mustPassWithFace": [

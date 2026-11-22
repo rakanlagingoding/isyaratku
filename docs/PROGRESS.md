@@ -33,8 +33,9 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Fase 4 — Dataset kata (14–20 Des)
 
-- [x] Cari dataset BISINDO kata tambahan (2026-11-22). Kandidat utama: Mendeley `yzhzkzbnmw` (Binus, CC BY 4.0) — 40 kata × 60 sampel, `.npy` bentuk (30, 447) float64 landmark MediaPipe yang sudah dinormalisasi; memuat KAMU, DIA, HALO, MINUM, BAIK. Tata letak 447 kolom dan normalisasinya belum diketahui (cek paper/gambar struktur folder). Menunggu keputusan pemilik.
+- [x] Cari dataset BISINDO kata tambahan (2026-11-22). Dipakai: Mendeley `yzhzkzbnmw` (Binus, CC BY 4.0, 40 kata × 60 sampel landmark). Tata letak 447 kolom dipastikan dari data (DECISIONS #29); vocab kamera jadi 63 gloss + `_IDLE`.
 - [ ] Unduh WL-BISINDO (Kaggle, 2,16 GB), konversi video → landmark (resample ke laju deteksi aplikasi, `_IDLE` dari awal/akhir video; DECISIONS #22)
+- [ ] Unduh Mendeley `yzhzkzbnmw` (±258 MB), ambil blok tangan kolom 107–148, taksir `aspect` (±16/9), normalisasi ulang (DECISIONS #29)
 - [ ] Notebook `train_signs.ipynb` + augmentasi, uji signer-independent
 
 ## Fase 5 — Model kata (21–27 Des)
@@ -44,7 +45,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Fase 6 — Mesin penerjemah (28 Des–3 Jan)
 
-- [ ] F5 Mode A: `ruleBased.ts` lolos semua tes contoh PRD (mustPass 11 + mustPassWithFace 3)
+- [ ] F5 Mode A: `ruleBased.ts` lolos semua tes contoh PRD (mustPass 13 + mustPassWithFace 3)
 - [ ] F5 Mode B: `api/translate.ts` + fallback (cara menjalankan API lokal, DECISIONS #18)
 - [ ] `eval/run_eval.ts`: BLEU + chrF Mode A vs B
 

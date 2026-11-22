@@ -2,7 +2,7 @@
 
 > Dokumen acuan pengembangan untuk vibe coding dengan Claude Code.
 > Proyek mata kuliah **Mesin Penerjemah**, Teknik Informatika UIR.
-> Pemilik: Rakan Ibnu Arega (243510441). Versi 1.2, 21 November 2026 (v1.1: ekspresi wajah, suara bernada emosi, tampilan 4 tahap; v1.2: menu Rekam dihapus dari aplikasi; v1.3 (22 Nov): abjad 126 fitur, data latih dari dataset publik, kosakata kamera WL-BISINDO, lihat DECISIONS #16, #21, #22).
+> Pemilik: Rakan Ibnu Arega (243510441). Versi 1.2, 21 November 2026 (v1.1: ekspresi wajah, suara bernada emosi, tampilan 4 tahap; v1.2: menu Rekam dihapus dari aplikasi; v1.3 (22 Nov): abjad 126 fitur, data latih dari dataset publik, kosakata kamera WL-BISINDO + Mendeley, lihat DECISIONS #16, #21, #22, #29).
 
 ---
 
@@ -53,7 +53,7 @@ Inspirasi tampilan: demo "AI sign language to voice" (bcho, TikTok) dengan alur 
 ### 4.1 Dalam cakupan MVP
 
 - Abjad jari BISINDO A–Z (isyarat statis).
-- 32 kata isyarat (isyarat dinamis) dari dataset WL-BISINDO, lihat 4.3.
+- 63 kata isyarat (isyarat dinamis) dari dataset WL-BISINDO dan Mendeley BISINDO NMM, lihat 4.3.
 - Penerjemah gloss → kalimat: **Mode A** rule-based (offline) dan **Mode B** LLM (online).
 - STT bahasa Indonesia via Web Speech API.
 - Model dilatih dari dataset publik (bagian 11.1); **tidak ada** menu Rekam di aplikasi.
@@ -72,15 +72,18 @@ Inspirasi tampilan: demo "AI sign language to voice" (bcho, TikTok) dengan alur 
 
 ### 4.3 Kosakata MVP
 
-**Dikenali kamera (`signs`, 32 gloss + kelas diam)** — mengikuti dataset WL-BISINDO (variasi Banten), DECISIONS #22:
+**Dikenali kamera (`signs`, 63 gloss + kelas diam)** — gabungan WL-BISINDO (32, variasi Banten, DECISIONS #22)
+dan Mendeley BISINDO NMM (40, Binus, DECISIONS #29); 9 kata ada di keduanya:
 
 ```
-Sapaan : TERIMA-KASIH, MAAF
-Orang  : SAYA, TEMAN, KELUARGA, TULI
-Kerja  : MAKAN, BELAJAR, CARI, INGAT, DENGAR, BERANGKAT, DATANG
-Tanya  : APA, SIAPA, MANA, KAPAN, MENGAPA, BAGAIMANA
+Sapaan : HALO, APA-KABAR, TERIMA-KASIH, MAAF, SELAMAT-PAGI, SELAMAT-SIANG, SELAMAT-SORE, SELAMAT-MALAM
+Orang  : SAYA, KAMU, DIA, KAMI, KITA, KALIAN, MEREKA, TEMAN, KELUARGA, TULI
+Kerja  : MAKAN, MINUM, BELAJAR, CARI, INGAT, DENGAR, BERANGKAT, DATANG, BERDIRI, DUDUK, MANDI, TIDUR,
+         MELIHAT, MEMBACA, MENULIS
+Tanya  : APA, SIAPA, MANA, KAPAN, MENGAPA, BAGAIMANA, BERAPA, KEMANA
+Sifat  : BAIK, SENANG, SEDIH, MARAH, BINGUNG, RAMAH, SABAR, TINGGI, PENDEK, MERAH, KUNING, HIJAU, HITAM
 Waktu  : HARI, PAGI, SIANG, SORE, MALAM
-Lain   : AIR, MOTOR, RUMAH, LAGI, MERAH, KUNING, HIJAU, HITAM
+Lain   : AIR, MOTOR, RUMAH, LAGI
 Khusus : _IDLE (tidak ada isyarat)
 ```
 
@@ -88,7 +91,7 @@ Khusus : _IDLE (tidak ada isyarat)
 tidak ada di dataset publik; bisa dieja dengan abjad (`FS:`):
 
 ```
-HALO, TOLONG, SAMA-SAMA, KAMU, DIA, NAMA, MINUM, PERGI, PULANG, MAU, TIDAK, SUDAH, BELUM, SAKIT, KAMPUS, BAIK
+TOLONG, SAMA-SAMA, NAMA, PERGI, PULANG, MAU, TIDAK, SUDAH, BELUM, SAKIT, KAMPUS
 ```
 
 Sumber tunggal label: `src/data/vocab.json`.
@@ -111,7 +114,7 @@ Sumber tunggal label: `src/data/vocab.json`.
 | Suara (STT) | Web Speech API `SpeechRecognition` / `webkitSpeechRecognition` |
 | Mode B (LLM) | Serverless function di `api/translate.ts` (Vercel) |
 | TTS neural | Serverless function di `api/tts.ts` (Vercel), key Azure hanya di server |
-| Dataset latih | Publik: Kaggle (abjad), WL-BISINDO (kata); diubah ke landmark di notebook Colab (bagian 11.1) |
+| Dataset latih | Publik: Kaggle (abjad), WL-BISINDO + Mendeley BISINDO NMM (kata); diubah ke landmark di notebook Colab (bagian 11.1) |
 | Pelatihan model | Python + TensorFlow/Keras di Google Colab, ekspor `tensorflowjs_converter` |
 | Tes | Vitest + Testing Library |
 | Lint/format | ESLint + Prettier |
@@ -376,7 +379,7 @@ Dua contoh terakhir hanya memakai kosakata kamera, jadi bisa didemokan langsung 
 
 ### F9 — Halaman Belajar (opsional, dikerjakan jika waktu tersisa)
 
-- Daftar 32 gloss kamera + abjad dengan deskripsi cara memperagakan (teks; slot video/GIF opsional di `public/learn/`).
+- Daftar 63 gloss kamera + abjad dengan deskripsi cara memperagakan (teks; slot video/GIF opsional di `public/learn/`).
 - Mode latihan: pilih gloss, peragakan, tampilkan benar/salah dan confidence.
 
 ### F10 — Data latih (dataset publik, bukan menu aplikasi)
@@ -436,6 +439,7 @@ Belajar (opsional), dan Pengaturan. Data latih berasal dari dataset publik (bagi
 | `letters` | Kaggle "Abjad Bahasa Isyarat Indonesia (BISINDO)" (Meisya Vira, gabungan dataset Achmad Noer) | 26 huruf × 25 foto | ODbL |
 | `letters` (opsional) | Roboflow "BISINDO Dataset" v3 | 22 huruf, grayscale 244×244 | CC BY 4.0 |
 | `signs` | WL-BISINDO (Kindy, Leonali & Lucky, Procedia CS 269, 2025) | 32 kata × 10 sampel × 5 peraga, video RGB | CC BY-NC 4.0 |
+| `signs` | Mendeley BISINDO NMM `yzhzkzbnmw` (Ramadhana, Ho, Luman & Sutoyo, Binus) | 40 kata × 60 sampel, landmark `.npy` (30 × 447) | CC BY 4.0 |
 
 - Foto/video diubah ke landmark di notebook (`training/`), hasil antara = array `Sample` (bagian 8).
 - Video kata di-*resample* ke laju deteksi aplikasi sebelum dipotong menjadi window 30 frame (DECISIONS #22).
@@ -446,7 +450,7 @@ Belajar (opsional), dan Pengaturan. Data latih berasal dari dataset publik (bagi
 | Model | Input | Arsitektur | Output |
 | --- | --- | --- | --- |
 | `letters` | 126 | Dense 128 → Dropout 0,3 → Dense 64 → Softmax | 26 |
-| `signs` | 30 × 126 | GRU 64 (return seq) → GRU 64 → Dense 64 → Softmax | 33 (32 gloss + `_IDLE`) |
+| `signs` | 30 × 126 | GRU 64 (return seq) → GRU 64 → Dense 64 → Softmax | 64 (63 gloss + `_IDLE`) |
 
 - Augmentasi: rotasi ±15°, skala ±10%, noise Gaussian kecil, mirror (pertukaran tangan kiri/kanan).
 - Split 70/15/15 (untuk `signs`: protokol signer-independent WL-BISINDO bila memungkinkan), simpan confusion matrix dan classification report untuk laporan.
@@ -470,7 +474,7 @@ Kerjakan berurutan. Setiap fase diakhiri: aplikasi bisa dibuka di HP lewat URL d
 | 1 | 23–29 Nov | Setup Vite+React+TS+Tailwind+Router+Zustand, layout + BottomNav, F1 kamera & overlay, deploy Vercel | Titik tangan tampil di HP via HTTPS |
 | 2 | 30 Nov–6 Des | F2 fitur, F3 classifier (mode mock + model abjad), notebook `train_letters` dari dataset publik (F10) | Huruf terdeteksi realtime dengan model abjad |
 | 3 | 7–13 Des | F6 TTS, mode eja di F4, F7 halaman Terjemah versi awal, F12 PWA | Eja nama lalu terucap; app bisa di-install |
-| 4 | 14–20 Des | Konversi video WL-BISINDO ke landmark, notebook `train_signs` | Model `signs` terekspor |
+| 4 | 14–20 Des | Konversi WL-BISINDO (video) + Mendeley (landmark) ke 126 fitur, notebook `train_signs` | Model `signs` terekspor |
 | 5 | 21–27 Des | F4 segmenter penuh, integrasi model `signs` | Kalimat gloss terkumpul dan event akhir kalimat jalan |
 | 6 | 28 Des–3 Jan | F5 Mode A + tes, Mode B + `api/translate`, korpus & `run_eval.ts` | Semua contoh F5 lolos; BLEU/chrF terhitung |
 | 7 | 4–10 Jan | **F13 ekspresi wajah**, emosi ke Mode A/B, **TTS Azure + prosody**, **F7 tampilan 4 tahap**, F8 Percakapan, F11 Pengaturan, optimasi performa. F9 Belajar hanya jika waktu cukup | Demo 4 tahap berjalan di HP ≥ 15 FPS; kalimat tanya dari alis naik; nada suara berubah sesuai emosi |
