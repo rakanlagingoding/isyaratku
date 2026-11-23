@@ -16,6 +16,8 @@ export type Prediction = {
 export type RecognitionMode = 'letters' | 'signs';
 export type TranslatorMode = 'rule' | 'llm';
 
+export type Emotion = 'netral' | 'senang' | 'sedih' | 'marah' | 'bertanya';
+
 export type TranslationResult = {
   glosses: string[];
   sentence: string;
