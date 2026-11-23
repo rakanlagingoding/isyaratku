@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { glossesToText } from '../lib/segmenter';
 import type { RecognitionMode } from '../types';
 
 // Live state of the Translate page (not persisted).
@@ -23,10 +24,15 @@ type SessionState = {
   setWordBuffer: (letters: string) => void;
   setActive: (active: ActiveLetter | null) => void;
   finishSentence: (text: string) => void;
+  /**
+   * End the sentence from the chips still on screen (removed chips are not spoken).
+   * Returns the text to speak, or '' when no chip is left (the sentence is then left unchanged).
+   */
+  takeSentence: () => string;
   clear: () => void;
 };
 
-export const useSessionStore = create<SessionState>()((set) => ({
+export const useSessionStore = create<SessionState>()((set, get) => ({
   running: false,
   mode: 'letters',
   glosses: [],
@@ -41,5 +47,10 @@ export const useSessionStore = create<SessionState>()((set) => ({
   setWordBuffer: (wordBuffer) => set({ wordBuffer }),
   setActive: (active) => set({ active }),
   finishSentence: (sentence) => set({ sentence, glosses: [], wordBuffer: '' }),
+  takeSentence: () => {
+    const text = glossesToText(get().glosses);
+    if (text) get().finishSentence(text);
+    return text;
+  },
   clear: () => set({ running: false, glosses: [], wordBuffer: '', active: null, sentence: '' }),
 }));

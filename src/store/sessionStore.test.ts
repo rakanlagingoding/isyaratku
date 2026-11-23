@@ -41,6 +41,23 @@ describe('sessionStore', () => {
     });
   });
 
+  it('takeSentence speaks only the chips that are still there', () => {
+    store().addGloss('FS:RAKAN');
+    store().addGloss('FS:XQ');
+    store().addGloss('FS:ADI');
+    store().removeGloss(1);
+    expect(store().takeSentence()).toBe('Rakan Adi.');
+    expect(store().sentence).toBe('Rakan Adi.');
+    expect(store().glosses).toEqual([]);
+  });
+
+  it('takeSentence returns an empty string when every chip was removed', () => {
+    store().addGloss('FS:XQ');
+    store().removeGloss(0);
+    expect(store().takeSentence()).toBe('');
+    expect(store().sentence).toBe('');
+  });
+
   it('start and pause toggle running', () => {
     store().start();
     expect(store().running).toBe(true);
