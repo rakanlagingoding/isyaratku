@@ -54,9 +54,13 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
-    ...(useSsl && mode !== 'test' ? [basicSsl()] : []),
+    // `--mode tunnel`: plain HTTP on localhost; Cloudflare's tunnel adds a valid HTTPS certificate.
+    ...(useSsl && mode !== 'test' && mode !== 'tunnel' ? [basicSsl()] : []),
     ...(mode !== 'test' ? [pwa] : []),
   ],
+  // Quick tunnel URLs look like https://<random>.trycloudflare.com (DECISIONS #30).
+  server: { allowedHosts: ['.trycloudflare.com'] },
+  preview: { allowedHosts: ['.trycloudflare.com'] },
   // The hand detector runs in a module worker (src/workers/handDetector.worker.ts).
   worker: { format: 'es' },
   test: {

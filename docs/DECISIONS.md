@@ -148,3 +148,21 @@ Disetujui pemilik. Sumber: "Indonesian Sign Language (BISINDO) Dataset: Landmark
 **Konversi ke fitur kita (Fase 4):** ambil blok tangan, lalu `normalize_hand(points, aspect)` per tangan — hasilnya setara `features.ts` karena normalisasi kita tidak terpengaruh geser/skala seragam. **`aspect` perlu ditaksir:** x dan y mereka tampak dalam satuan gambar mentah (hidung ±1 lebar bahu di atas bahu, panggul ±2,2 di bawah), konsisten dengan video landscape 16:9 → `aspect ≈ 16/9`; verifikasi di notebook (mis. panjang tulang tangan stabil saat tangan berputar).
 **Catatan:** urutan kiri/kanan harus dicocokkan dengan aplikasi (#10 belum diverifikasi di HP; augmentasi mirror mengurangi dampaknya). Data sudah 30 frame per isyarat (*temporal standardization*), jadi kecepatan gerak perlu disamakan dengan window aplikasi (sama seperti #22). Titik wajah/pose (NMS) belum dipakai; bisa jadi bahan F13 nanti.
 **Ditolak (sementara):** Kaggle `bisindo-40-kata-mp4` (daftar kata tidak tercantum), Talkee (hanya 7 kata), Mendeley `f33k9w86wr` (frame JPG, kelas tidak tercantum).
+
+### #30 — 2026-11-23 — Fase 3: PWA lewat Cloudflare quick tunnel; akhir kalimat eja 2,5 detik
+**Uji PWA di HP:** Chrome menolak service worker pada sertifikat self-signed, jadi jalur `https://<IP-laptop>:5173` tidak bisa
+untuk install. Dipilih pemilik: **Cloudflare quick tunnel** (`cloudflared`, tanpa akun) — `npm run build`,
+`npm run preview:tunnel` (`vite preview --mode tunnel`, HTTP di 4173, SSL dimatikan untuk mode `tunnel`), `npm run tunnel`.
+Vite mengizinkan host `.trycloudflare.com`. Diverifikasi 2026-11-23: lewat URL tunnel `isSecureContext = true`, service
+worker `activated`, manifest 3 ikon. **Risiko:** URL publik selama tunnel menyala; URL berganti tiap kali.
+**Ditolak:** USB port forwarding (butuh kabel + USB debugging), deploy Vercel (#18 ditunda).
+**Cache:** `vite-plugin-pwa` (disetujui pemilik) mem-precache app shell (±1,2 MB: JS, CSS, HTML, ikon); `/mediapipe/*`
+(WASM ±15 MB) dan `/models/*` di-cache **CacheFirst saat pertama dipakai** (`isyaratku-models`), agar instalasi tidak
+mengunduh ±23 MB. Akibat: setelah satu kali dibuka online, deteksi tangan + model abjad jalan offline.
+**Ikon:** sementara, dibuat `scripts/make-icons.mjs` (Node bawaan, tanpa dependency); maskable menjaga isi di zona aman 80%.
+**Segmenter mode eja:** huruf diterima bila label sama + confidence ≥ 0,8 selama 500 ms; huruf sama berulang butuh "lepas"
+(tangan hilang atau label lain); jeda 1000 ms menutup kata → `FS:<HURUF>` (maks 20); **akhir kalimat = 2500 ms tanpa
+tangan** setelah ada gloss. PRD F4 memakai 1000 ms untuk keduanya, yang bentrok di mode eja — **usulan perubahan PRD F4,
+belum diterapkan**.
+**Teks diucapkan (sementara):** `glossesToText` (`FS:RAKAN` → "Rakan", kapital awal, titik), diganti Mode A di Fase 6.
+Kalimat diambil dari chip yang tersisa (`takeSentence`), jadi chip yang dihapus tidak ikut terucap.

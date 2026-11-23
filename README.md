@@ -35,3 +35,15 @@ Bahan awal agar agent AI memahami project sebelum menulis kode.
 - Validasi kosakata BISINDO dengan referensi atau teman Tuli; sesuaikan `lexicon.json` jika ada perbedaan.
 - Tambah `eval/gloss_pairs.json` sampai 50–100 pasangan sebelum evaluasi akhir.
 - Isi tenggat akhir dari dosen di `docs/PROGRESS.md`.
+
+## Uji di HP lewat tunnel (PWA)
+
+Chrome tidak mau memasang service worker di `https://<IP-laptop>:5173` (sertifikat self-signed), jadi uji PWA memakai
+Cloudflare quick tunnel yang memberi HTTPS asli (DECISIONS #30). Butuh `cloudflared` (`winget install --id Cloudflare.cloudflared`).
+
+1. `npm run build`
+2. `npm run preview:tunnel` (terminal 1, HTTP di `localhost:4173`)
+3. `npm run tunnel` (terminal 2) → salin URL `https://….trycloudflare.com` dan buka di Chrome HP.
+
+**Peringatan:** selama tunnel menyala, siapa pun yang tahu URL-nya bisa membuka aplikasi. Jangan bagikan URL, dan matikan
+kedua terminal (Ctrl+C) setelah selesai. URL berganti setiap kali `npm run tunnel` dijalankan.

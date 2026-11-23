@@ -2,7 +2,7 @@
 
 Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi tanggal, catat bug.
 
-**Fase aktif:** Fase 2 (model abjad terpasang; menunggu uji realtime di HP)
+**Fase aktif:** Fase 3 (kode selesai; menunggu uji eja + install di HP lewat tunnel)
 **Terakhir diperbarui:** 2026-11-22 (kit PRD v1.2 digabung dengan hasil Fase 1–2; data kata = WL-BISINDO, DECISIONS #21–#22)
 
 ## Fase 1 — Fondasi (23–29 Nov 2026)
@@ -26,10 +26,11 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Fase 3 — Suara dan PWA (7–13 Des)
 
-- [ ] F6: `speech.ts` TTS versi Web Speech + `prosody.json` (Azure menyusul di Fase 7)
-- [ ] F4: mode eja (huruf → gloss `FS:`)
-- [ ] F7: halaman Terjemah versi awal (chip gloss + indikator keyakinan, lihat `docs/REFERENCE-VIDEO.md`)
-- [ ] F12: PWA installable
+- [x] F6: `speech.ts` TTS versi Web Speech + `prosody.json` (2026-11-23; Azure menyusul di Fase 7)
+- [x] F4: mode eja (huruf → gloss `FS:`) di `segmenter.ts` (2026-11-23; akhir kalimat 2,5 dtk, DECISIONS #30)
+- [x] F7: halaman Terjemah versi awal — chip (ketuk = hapus), "58% — tahan lebih stabil", teks hasil, Mulai/Jeda, Ucapkan ulang, Hapus, toggle Abjad/Kata (Kata nonaktif) (2026-11-23; dicek di emulasi 360 px)
+- [x] F12: PWA — manifest, ikon sementara, service worker (2026-11-23; lewat tunnel: SW `activated`)
+- [ ] Uji di HP lewat tunnel: eja nama → chip → terucap; Instal aplikasi dari menu Chrome
 
 ## Fase 4 — Dataset kata (14–20 Des)
 
@@ -78,6 +79,9 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 | SUS | ≥ 68 | – | – |
 
 ## Bug dan catatan
+
+- 2026-11-23 (Fase 3): dependency baru `vite-plugin-pwa` (dev); `cloudflared` 2026.11.1 dipasang lewat winget. 105 tes lolos. Belum diverifikasi di HP: suara `id-ID` di HP, install PWA, akurasi eja realtime.
+- 2026-11-22: "Model deteksi tangan gagal dimuat" di HP — penyebab: membuka alamat lama `192.168.1.6` setelah laptop pindah Wi-Fi (IP baru `192.168.100.246`); aset worker tidak terunduh. Bukan bug kode.
 
 - 2026-11-22: kit PRD v1.2 (`isyaratku-kit.zip`) diekstrak ke repo dan menimpa dokumen + data yang belum di-commit. Dipulihkan: DECISIONS #8–#23 (entri kit dinomori ulang #24–#28), PROGRESS, vocab/lexicon/rules/gloss_pairs WL-BISINDO (R9 wajah dari kit dipertahankan), `.gitignore`. **Commit sesudah perubahan besar** agar tidak terulang.
 - 2026-11-21: model abjad dilatih di Colab (tf_keras 2.21, ekspor manual #23). Recall terendah: B dan Y (0,67), L/M/Q/U (0,75). Persentase foto terdeteksi MediaPipe belum dicatat.
