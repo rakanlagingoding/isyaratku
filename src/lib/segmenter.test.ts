@@ -61,6 +61,21 @@ describe('Segmenter (fingerspelling)', () => {
     expect(r.words).toEqual(['R']);
   });
 
+  it('does not double an accepted letter after one noisy frame', () => {
+    const r = run([...hold('R', 600), ['B', 0.9], ...hold('R', 600)]);
+    expect(r.words).toEqual(['R']);
+  });
+
+  it('does not double an accepted letter after a one-frame hand dropout', () => {
+    const r = run([...hold('R', 600), null, ...hold('R', 600)]);
+    expect(r.words).toEqual(['R']);
+  });
+
+  it('a low-confidence frame of another letter does not release the accepted letter', () => {
+    const r = run([...hold('R', 600), ['B', 0.4], ['B', 0.4], ['B', 0.4], ...hold('R', 600)]);
+    expect(r.words).toEqual(['R']);
+  });
+
   it('closes the word after a 1000 ms pause', () => {
     const r = run([...hold('R', 600), ...hold('A', 600), ...gap(1100)]);
     expect(r.glosses).toEqual(['FS:RA']);
@@ -93,6 +108,23 @@ describe('Segmenter (fingerspelling)', () => {
     r.s.reset();
     const after = run(gap(3000), 100, r.s, 10_000);
     expect(after.glosses).toEqual([]);
+    expect(after.sentences).toEqual([]);
+  });
+});
+
+describe('Segmenter.resume (after a pause)', () => {
+  it('speaks chips made before the pause once the hands rest again', () => {
+    const r = run([...hold('R', 600), ...hold('A', 600), ...gap(1100)]);
+    r.s.reset();
+    r.s.resume(['FS:RA'], 10_000);
+    const after = run(gap(3000), 100, r.s, 10_000);
+    expect(after.sentences).toEqual([['FS:RA']]);
+  });
+
+  it('does not end the sentence before the full gap has passed since resuming', () => {
+    const r = run(gap(100));
+    r.s.resume(['FS:RA'], 10_000);
+    const after = run(gap(2000), 100, r.s, 10_000);
     expect(after.sentences).toEqual([]);
   });
 });

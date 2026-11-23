@@ -156,12 +156,18 @@ untuk install. Dipilih pemilik: **Cloudflare quick tunnel** (`cloudflared`, tanp
 Vite mengizinkan host `.trycloudflare.com`. Diverifikasi 2026-11-23: lewat URL tunnel `isSecureContext = true`, service
 worker `activated`, manifest 3 ikon. **Risiko:** URL publik selama tunnel menyala; URL berganti tiap kali.
 **Ditolak:** USB port forwarding (butuh kabel + USB debugging), deploy Vercel (#18 ditunda).
-**Cache:** `vite-plugin-pwa` (disetujui pemilik) mem-precache app shell (±1,2 MB: JS, CSS, HTML, ikon); `/mediapipe/*`
-(WASM ±15 MB) dan `/models/*` di-cache **CacheFirst saat pertama dipakai** (`isyaratku-models`), agar instalasi tidak
-mengunduh ±23 MB. Akibat: setelah satu kali dibuka online, deteksi tangan + model abjad jalan offline.
+**Cache:** `vite-plugin-pwa` (disetujui pemilik) mem-precache app shell (±1,2 MB: JS, CSS, HTML, ikon). Aset besar di-cache
+saat dipakai (`src/lib/pwaCache.ts`, dites): `/models/*` **NetworkFirst** (`isyaratku-models`, timeout 4 dtk) — model hasil
+latih ulang bernama sama, jadi harus divalidasi ulang tiap buka (murah lewat ETag/304), cache jadi cadangan offline;
+`/mediapipe/*` **CacheFirst** dalam cache bernama versi paket (`isyaratku-mediapipe-1.2.3`) agar upgrade tidak mencampur
+WASM lama dengan JS baru. Keduanya hanya menyimpan respons 200 non-HTML (`keepOnlyRealFiles`): server menjawab file hilang
+(mis. `models/signs/model.json`) dengan `index.html` 200, yang jika ter-cache akan mengunci mode mock. Pola dicocokkan ke
+URL lengkap (perilaku Workbox). Diverifikasi lewat tunnel 2026-11-23. Akibat: setelah sekali dibuka online, deteksi tangan
++ model abjad jalan offline.
 **Ikon:** sementara, dibuat `scripts/make-icons.mjs` (Node bawaan, tanpa dependency); maskable menjaga isi di zona aman 80%.
 **Segmenter mode eja:** huruf diterima bila label sama + confidence ≥ 0,8 selama 500 ms; huruf sama berulang butuh "lepas"
-(tangan hilang atau label lain); jeda 1000 ms menutup kata → `FS:<HURUF>` (maks 20); **akhir kalimat = 2500 ms tanpa
+yang stabil — tangan hilang ≥ 200 ms atau huruf lain yakin ≥ 200 ms (satu frame salah tebak / hilang tidak melepas);
+**Jeda** membuang kata yang belum selesai, chip tetap ada dan ikut terucap setelah **Mulai** lagi (`Segmenter.resume`); jeda 1000 ms menutup kata → `FS:<HURUF>` (maks 20); **akhir kalimat = 2500 ms tanpa
 tangan** setelah ada gloss. PRD F4 memakai 1000 ms untuk keduanya, yang bentrok di mode eja — **usulan perubahan PRD F4,
 belum diterapkan**.
 **Teks diucapkan (sementara):** `glossesToText` (`FS:RAKAN` → "Rakan", kapital awal, titik), diganti Mode A di Fase 6.

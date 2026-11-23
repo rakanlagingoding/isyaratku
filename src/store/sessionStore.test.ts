@@ -58,6 +58,15 @@ describe('sessionStore', () => {
     expect(store().sentence).toBe('');
   });
 
+  it('pause drops the half-spelled word but keeps the chips', () => {
+    store().start();
+    store().addGloss('FS:RAKAN');
+    store().setWordBuffer('AD');
+    store().pause();
+    expect(store().wordBuffer).toBe('');
+    expect(store().glosses).toEqual(['FS:RAKAN']);
+  });
+
   it('start and pause toggle running', () => {
     store().start();
     expect(store().running).toBe(true);

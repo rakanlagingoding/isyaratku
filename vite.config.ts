@@ -4,13 +4,21 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { VitePWA } from 'vite-plugin-pwa';
+import { readFileSync } from 'node:fs';
+import { modelRuntimeCaching } from './src/lib/pwaCache';
 
 // HTTPS in dev is needed so a phone on the same network can open the camera.
 // Set VITE_NO_SSL=1 to run plain HTTP (e.g. localhost-only testing).
 const useSsl = process.env.VITE_NO_SSL !== '1';
 
+// Names the MediaPipe wasm cache, so a package upgrade starts a fresh cache (the package's "exports"
+// field hides package.json from require(), hence the file read).
+const mediapipeVersion: string = JSON.parse(
+  readFileSync('node_modules/@mediapipe/tasks-vision/package.json', 'utf8'),
+).version;
+
 // PWA (PRD F12). The app shell is precached; MediaPipe wasm and the TF.js / MediaPipe models are
-// too large for the install step and are cached on first use instead (DECISIONS #30).
+// too large for the install step and are cached at runtime (src/lib/pwaCache.ts, DECISIONS #30).
 const pwa = VitePWA({
   registerType: 'autoUpdate',
   manifest: {
@@ -40,13 +48,7 @@ const pwa = VitePWA({
     globIgnores: ['mediapipe/**', 'models/**'],
     navigateFallbackDenylist: [/^\/api\//],
     maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-    runtimeCaching: [
-      {
-        urlPattern: /\/(mediapipe|models)\//,
-        handler: 'CacheFirst',
-        options: { cacheName: 'isyaratku-models' },
-      },
-    ],
+    runtimeCaching: modelRuntimeCaching(mediapipeVersion),
   },
 });
 

@@ -69,6 +69,8 @@ export default function TranslatePage() {
       pause();
       segmenterRef.current?.reset();
     } else {
+      // Chips made before the pause stay part of the sentence and are spoken at its end.
+      segmenterRef.current?.resume(useSessionStore.getState().glosses, performance.now());
       start();
     }
   };

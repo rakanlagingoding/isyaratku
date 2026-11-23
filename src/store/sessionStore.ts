@@ -40,7 +40,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
   active: null,
   sentence: '',
   start: () => set({ running: true }),
-  pause: () => set({ running: false, active: null }),
+  pause: () => set({ running: false, active: null, wordBuffer: '' }),
   setMode: (mode) => set({ mode }),
   addGloss: (gloss) => set((s) => ({ glosses: [...s.glosses, gloss] })),
   removeGloss: (index) => set((s) => ({ glosses: s.glosses.filter((_, i) => i !== index) })),

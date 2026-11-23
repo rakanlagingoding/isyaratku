@@ -19,6 +19,11 @@ export type SegmenterOptions = {
   sentenceGapMs?: number;
   /** Longest fingerspelled word (`^FS:[A-Z]{1,20}$`). */
   maxLetters?: number;
+  /**
+   * How long a "release" must last before the same letter can be accepted again: no hand for this
+   * long, or another confident letter held this long. Single noisy frames never release.
+   */
+  releaseMs?: number;
 };
 
 export type SegmenterEvents = {
@@ -40,6 +45,7 @@ const DEFAULTS: Required<SegmenterOptions> = {
   wordGapMs: 1000,
   sentenceGapMs: 2500,
   maxLetters: 20,
+  releaseMs: 200,
 };
 
 const FS = vocab.fingerspellPrefix;
@@ -82,20 +88,30 @@ export class Segmenter {
     this.sentence = [];
   }
 
+  /**
+   * Continue after a pause: glosses already on screen (chips) belong to the open sentence, and the
+   * sentence gap is measured from `t` (performance.now() at resume), not from before the pause.
+   */
+  resume(pendingGlosses: ReadonlyArray<string>, t: number): void {
+    this.reset();
+    this.sentence = [...pendingGlosses];
+    this.lastHandT = t;
+  }
+
   push(f: FeatureVector, t: number): void {
     if (hasHand(f)) {
       this.lastHandT = t;
       this.onHand(this.predict(f), t);
     } else {
       this.holdLabel = null;
-      this.blocked = null;
+      // lastHandT is still the previous hand frame here: release only after a real pause.
+      if (this.blocked && t - this.lastHandT >= this.opts.releaseMs) this.blocked = null;
     }
     this.checkGaps(t);
   }
 
   private onHand({ label, confidence }: Prediction, t: number): void {
-    const { threshold, letterHoldMs, maxLetters } = this.opts;
-    if (label !== this.blocked) this.blocked = null;
+    const { threshold, letterHoldMs, maxLetters, releaseMs } = this.opts;
     if (confidence < threshold) {
       this.holdLabel = null;
       this.emit('letter', { label, confidence, holdProgress: 0 });
@@ -105,6 +121,9 @@ export class Segmenter {
     if (label !== this.holdLabel) {
       this.holdLabel = label;
       this.holdStart = t;
+    }
+    if (this.blocked && label !== this.blocked && t - this.holdStart >= releaseMs) {
+      this.blocked = null; // another letter has been held steadily: the previous one is released
     }
     if (label === this.blocked) {
       this.emit('letter', { label, confidence, holdProgress: 0 });
