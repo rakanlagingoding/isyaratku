@@ -49,7 +49,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 - [x] F5 Mode A: `ruleBased.ts` lolos mustPass 13 + mustPassWithFace 3, dan identik dengan `reference_rules.py` di 72 pasangan korpus (2026-11-26; dipakai halaman Terjemah untuk kalimat dari chip)
 - [ ] F5 Mode B: `api/translate.ts` + fallback (cara menjalankan API lokal, DECISIONS #18)
-- [ ] `eval/run_eval.ts`: BLEU + chrF Mode A vs B
+- [x] `npm run eval` (`eval/evaluate.ts` + `eval/run_eval.mjs`): BLEU + chrF Mode A per subset → `eval/results.csv` (2026-11-26; metrik = sacreBLEU 2.6.0, dicek silang); kolom Mode B menunggu Mode B
 
 ## Fase 7 — Ekspresi, suara, 4 tahap, percakapan (4–10 Jan)
 
@@ -73,7 +73,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 | --- | --- | --- | --- |
 | Akurasi abjad | ≥ 90% | 93,5% (split uji Kaggle, 93 sampel, 3–4/huruf; peraga bisa sama dengan data latih) | 2026-11-21 |
 | Akurasi kata | ≥ 80% | – | – |
-| BLEU / chrF Mode A | – | – | – |
+| BLEU / chrF Mode A | – | semua 89,83 / 94,46 · mudah 100 / 100 · sulit 45,37 / 72,01 (72 pasangan) | 2026-11-26 |
 | BLEU / chrF Mode B | > Mode A | – | – |
 | FPS di HP | ≥ 15 | – | – |
 | Latensi isyarat → suara | ≤ 2 dtk | – | – |

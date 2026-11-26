@@ -12,6 +12,7 @@
     "preview:tunnel": "vite preview --mode tunnel --port 4173 --strictPort",
     "tunnel": "cloudflared tunnel --url http://localhost:4173",
     "icons": "node scripts/make-icons.mjs",
+    "eval": "node eval/run_eval.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
