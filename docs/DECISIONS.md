@@ -224,3 +224,13 @@ focus ring, tidak ada animasi. Legacy-scan hanya mencakup ±20% korpus panduan.
   ditunda pemilik); `dark-mode` (aplikasi sengaja gelap, toggle di F11); `install-web-app` (API install baru = fitur, bukan
   modernisasi); `efficient-background-processing`/`detect-initial-visibility-state` (rAF sudah berhenti saat tab tersembunyi).
 
+
+### #35 — 2026-11-27 — Segmenter mode kata (`WordSegmenter`)
+Kelas terpisah dari `Segmenter` (abjad) di `src/lib/segmenter.ts`, berbagi `Emitter` dan antarmuka `GlossSegmenter`
+(`on('gloss'|'sentenceEnd')`, `push`, `reset`, `resume`) yang dipakai halaman Terjemah. Aturan PRD F4 apa adanya, plus:
+- Frame tanpa tangan tetap masuk window tetapi **tidak** diprediksi; jeda diukur dari waktu (`lastActiveT`).
+- Prediksi `_IDLE` (berapa pun confidence-nya) = jeda: mereset streak dan mengizinkan gloss yang sama lagi.
+- Confidence < ambang mereset streak; streak juga direset saat akhir kalimat (bug tertangkap tes "SAYA lagi di kalimat baru").
+- Akhir kalimat mode kata 1000 ms (PRD F4); mode abjad tetap 2500 ms (#30) karena jeda antar kata eja sudah 1000 ms.
+- `_IDLE` diambil dari `vocab.signs.at(-1)` (aturan: label hanya dari `vocab.json`), tidak ditulis ulang.
+- Ganti mode saat berjalan: segmenter baru + `resume(chip yang ada)`; `setMode` mengosongkan `wordBuffer` dan `active`.
