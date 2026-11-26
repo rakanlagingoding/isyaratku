@@ -6,20 +6,22 @@ import GlossChips from '../components/GlossChips';
 import StageBar from '../components/StageBar';
 import { loadModels, type Classifier } from '../lib/classifier';
 import { toFeatures } from '../lib/features';
-import { fingerspellToWord, Segmenter } from '../lib/segmenter';
+import { fingerspellToWord, Segmenter, WordSegmenter, type GlossSegmenter } from '../lib/segmenter';
 import { isSpeechSupported, speak, stopSpeaking } from '../lib/speech';
 import { currentStage, useSessionStore, type Stage } from '../store/sessionStore';
 import type { HandFrame } from '../types';
+import vocab from '../data/vocab.json';
 
 const THRESHOLD = 0.8; // PRD F4 default; adjustable in F11 (Phase 7)
+const IDLE = vocab.signs.at(-1); // vocab.json: `_IDLE` is the last sign class
 
-// F7: fingerspelling -> FS: chips -> spoken sentence, shown as the 4-stage StageBar.
-// The face stage (F13) and the translator (F5) come in later phases.
+// F7: letters (fingerspelling) or words (signs) -> chips -> Mode A sentence -> voice, shown as the
+// 4-stage StageBar. The face stage (F13) comes in a later phase.
 export default function TranslatePage() {
   const [classifier, setClassifier] = useState<Classifier | null>(null);
-  const segmenterRef = useRef<Segmenter | null>(null);
-  const { running, glosses, wordBuffer, active, sentence, speaking } = useSessionStore();
-  const { start, pause, removeGloss, clear } = useSessionStore();
+  const segmenterRef = useRef<GlossSegmenter | null>(null);
+  const { running, mode, glosses, wordBuffer, active, sentence, speaking } = useSessionStore();
+  const { start, pause, setMode, removeGloss, clear } = useSessionStore();
   const [speechOk] = useState(() => isSpeechSupported());
 
   useEffect(() => {
@@ -43,11 +45,26 @@ export default function TranslatePage() {
 
   useEffect(() => {
     if (!classifier) return;
-    const seg = new Segmenter((f) => classifier.predictLetter(f), { threshold: THRESHOLD });
     const s = useSessionStore.getState();
-    const offs = [
-      seg.on('letter', ({ label, confidence }) => s.setActive({ label, confidence })),
-      seg.on('word', ({ letters }) => s.setWordBuffer(letters)),
+    const offs: Array<() => void> = [];
+    let seg: GlossSegmenter;
+    if (mode === 'letters') {
+      const letters = new Segmenter((f) => classifier.predictLetter(f), { threshold: THRESHOLD });
+      offs.push(
+        letters.on('letter', ({ label, confidence }) => s.setActive({ label, confidence })),
+        letters.on('word', ({ letters: spelled }) => s.setWordBuffer(spelled)),
+      );
+      seg = letters;
+    } else {
+      const words = new WordSegmenter((w) => classifier.predictSign(w), { threshold: THRESHOLD });
+      offs.push(
+        words.on('sign', ({ label, confidence }) =>
+          s.setActive(label === IDLE ? null : { label, confidence }),
+        ),
+      );
+      seg = words;
+    }
+    offs.push(
       seg.on('gloss', (gloss) => {
         s.addGloss(gloss);
         navigator.vibrate?.(50);
@@ -57,13 +74,15 @@ export default function TranslatePage() {
         const text = s.takeSentence();
         if (text) say(text);
       }),
-    ];
+    );
+    // Switching mode while running: chips stay part of the open sentence.
+    if (s.running) seg.resume(s.glosses, performance.now());
     segmenterRef.current = seg;
     return () => {
       offs.forEach((off) => off());
       segmenterRef.current = null;
     };
-  }, [classifier, say]);
+  }, [classifier, mode, say]);
 
   const onFrame = useCallback((frame: HandFrame, aspect: number) => {
     const seg = segmenterRef.current;
@@ -88,14 +107,15 @@ export default function TranslatePage() {
     stopSpeaking();
   };
 
-  const mock = classifier?.status('letters') === 'mock';
+  const mock = classifier?.status(mode) === 'mock';
+  const signsReady = classifier?.status('signs') === 'model';
 
   const stageDetail = (stage: Stage) => {
     switch (stage) {
       case 'tangan':
         if (!running) return 'Tekan Mulai untuk mengenali isyarat.';
         return active
-          ? `Huruf terlihat: ${active.label} (${Math.round(active.confidence * 100)}%)${
+          ? `${mode === 'letters' ? 'Huruf' : 'Isyarat'} terlihat: ${active.label} (${Math.round(active.confidence * 100)}%)${
               wordBuffer ? ` · mengeja ${wordBuffer}` : ''
             }`
           : 'Tangan belum terlihat.';
@@ -147,19 +167,23 @@ export default function TranslatePage() {
           <button
             type="button"
             role="radio"
-            aria-checked="true"
-            className="min-h-12 rounded-xl bg-sky-500 font-semibold text-slate-950"
+            aria-checked={mode === 'letters'}
+            onClick={() => setMode('letters')}
+            className={radioClass(mode === 'letters')}
           >
             Abjad
           </button>
           <button
             type="button"
             role="radio"
-            aria-checked="false"
-            aria-disabled="true" // stays focusable so screen readers hear why (no click handler)
-            className="min-h-12 rounded-xl bg-slate-800 font-semibold text-slate-400"
+            aria-checked={mode === 'signs'}
+            // aria-disabled (not disabled) stays focusable so screen readers hear why
+            aria-disabled={!signsReady || undefined}
+            onClick={() => signsReady && setMode('signs')}
+            className={signsReady ? radioClass(mode === 'signs') : radioClass(false, true)}
           >
-            Kata <span className="block text-xs font-normal">Model kata belum ada</span>
+            Kata
+            {!signsReady && <span className="block text-xs font-normal">Model kata belum ada</span>}
           </button>
         </div>
 
@@ -195,4 +219,11 @@ export default function TranslatePage() {
       </div>
     </section>
   );
+}
+
+function radioClass(checked: boolean, unavailable = false): string {
+  if (unavailable) return 'min-h-12 rounded-xl bg-slate-800 font-semibold text-slate-400';
+  return `min-h-12 rounded-xl font-semibold ${
+    checked ? 'bg-sky-500 text-slate-950' : 'bg-slate-700 text-white active:bg-slate-600'
+  }`;
 }

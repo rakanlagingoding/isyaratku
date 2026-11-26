@@ -43,7 +43,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 ## Fase 5 — Model kata (21–27 Des)
 
 - [ ] Latih dan ekspor model `signs` (cek nama bobot GRU, DECISIONS #23)
-- [ ] F4: segmenter penuh (window 30 frame, akhir kalimat)
+- [x] F4: segmenter mode kata `WordSegmenter` (window 30, prediksi tiap 2 frame, 3 prediksi stabil, ulang hanya setelah `_IDLE`, akhir kalimat 1000 ms) + 14 unit test; toggle Kata di Terjemah aktif hanya jika model `signs` termuat (2026-11-27)
 
 ## Fase 6 — Mesin penerjemah (28 Des–3 Jan)
 

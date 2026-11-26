@@ -65,6 +65,17 @@ describe('sessionStore', () => {
     expect(store().sentence).toBe('');
   });
 
+  it('setMode drops the half-spelled word and the active hint but keeps the chips', () => {
+    store().addGloss('FS:RAKAN');
+    store().setWordBuffer('AD');
+    store().setActive({ label: 'D', confidence: 0.9 });
+    store().setMode('signs');
+    expect(store().mode).toBe('signs');
+    expect(store().wordBuffer).toBe('');
+    expect(store().active).toBeNull();
+    expect(store().glosses).toEqual(['FS:RAKAN']);
+  });
+
   it('pause drops the half-spelled word but keeps the chips', () => {
     store().start();
     store().addGloss('FS:RAKAN');

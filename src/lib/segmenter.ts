@@ -1,5 +1,5 @@
-// Realtime segmentation (PRD F4). Phase 3: fingerspelling mode only — stable letters become words,
-// words become `FS:<LETTERS>` glosses (DECISIONS #5). Word mode (30-frame windows) comes in Phase 5.
+// Realtime segmentation (PRD F4). `Segmenter`: fingerspelling — stable letters become words, words
+// become `FS:<LETTERS>` glosses (DECISIONS #5). `WordSegmenter`: signs from 30-frame windows.
 // Pure TypeScript, no React. All timing comes from the `t` passed to push(), so it is testable.
 
 import type { FeatureVector, Prediction } from '../types';
@@ -37,7 +37,20 @@ export type SegmenterEvents = {
   sentenceEnd: string[];
 };
 
-type Listener<K extends keyof SegmenterEvents> = (payload: SegmenterEvents[K]) => void;
+/** Typed event emitter shared by both segmenters. */
+class Emitter<E> {
+  private readonly listeners: { [K in keyof E]?: Set<(payload: E[K]) => void> } = {};
+
+  on<K extends keyof E>(event: K, cb: (payload: E[K]) => void): () => void {
+    const set = (this.listeners[event] ??= new Set());
+    set.add(cb);
+    return () => set.delete(cb);
+  }
+
+  protected emit<K extends keyof E>(event: K, payload: E[K]): void {
+    this.listeners[event]?.forEach((cb) => cb(payload));
+  }
+}
 
 const DEFAULTS: Required<SegmenterOptions> = {
   threshold: 0.8,
@@ -50,15 +63,9 @@ const DEFAULTS: Required<SegmenterOptions> = {
 
 const FS = vocab.fingerspellPrefix;
 
-export class Segmenter {
+export class Segmenter extends Emitter<SegmenterEvents> implements GlossSegmenter {
   private readonly predict: LetterPredictor;
   private readonly opts: Required<SegmenterOptions>;
-  private readonly listeners: { [K in keyof SegmenterEvents]: Set<Listener<K>> } = {
-    letter: new Set(),
-    word: new Set(),
-    gloss: new Set(),
-    sentenceEnd: new Set(),
-  };
 
   private holdLabel: string | null = null;
   private holdStart = 0;
@@ -70,13 +77,9 @@ export class Segmenter {
   private sentence: string[] = [];
 
   constructor(predict: LetterPredictor, opts: SegmenterOptions = {}) {
+    super();
     this.predict = predict;
     this.opts = { ...DEFAULTS, ...opts };
-  }
-
-  on<K extends keyof SegmenterEvents>(event: K, cb: Listener<K>): () => void {
-    this.listeners[event].add(cb);
-    return () => this.listeners[event].delete(cb);
   }
 
   reset(): void {
@@ -157,9 +160,133 @@ export class Segmenter {
       this.emit('sentenceEnd', glosses);
     }
   }
+}
 
-  private emit<K extends keyof SegmenterEvents>(event: K, payload: SegmenterEvents[K]): void {
-    this.listeners[event].forEach((cb) => cb(payload));
+/** What the Translate page needs from either segmenter. */
+export interface GlossSegmenter {
+  on(event: 'gloss', cb: (gloss: string) => void): () => void;
+  on(event: 'sentenceEnd', cb: (glosses: string[]) => void): () => void;
+  push(f: FeatureVector, t: number): void;
+  reset(): void;
+  resume(pendingGlosses: ReadonlyArray<string>, t: number): void;
+}
+
+export type SignPredictor = (window: ReadonlyArray<FeatureVector>) => Prediction;
+
+export type WordSegmenterOptions = {
+  /** Minimum confidence for a prediction to count (PRD F4 default 0.8). */
+  threshold?: number;
+  /** Frames per prediction window (the signs model input). */
+  window?: number;
+  /** Predict every this many frames once the window is full. */
+  stride?: number;
+  /** Consecutive confident predictions of one sign needed to accept it. */
+  stableCount?: number;
+  /** No hand or `_IDLE` this long after a gloss ends the sentence (PRD F4: 1000 ms). */
+  sentenceGapMs?: number;
+};
+
+export type WordSegmenterEvents = {
+  /** Every prediction: what the model sees now (for the confidence hint). */
+  sign: Prediction;
+  /** A sign was accepted as a gloss. */
+  gloss: string;
+  /** The sentence ended; payload = glosses made since the last sentence. */
+  sentenceEnd: string[];
+};
+
+const WORD_DEFAULTS: Required<WordSegmenterOptions> = {
+  threshold: 0.8,
+  window: 30,
+  stride: 2,
+  stableCount: 3,
+  sentenceGapMs: 1000,
+};
+
+// vocab.json: `_IDLE` is the last sign class (see `_signsSource`).
+const IDLE = vocab.signs.at(-1) ?? '';
+
+export class WordSegmenter extends Emitter<WordSegmenterEvents> implements GlossSegmenter {
+  private readonly predict: SignPredictor;
+  private readonly opts: Required<WordSegmenterOptions>;
+
+  private frames: FeatureVector[] = [];
+  private framesSeen = 0;
+  private lastLabel: string | null = null; // latest prediction, carried between strides
+  private streakLabel: string | null = null;
+  private streak = 0;
+  /** Last accepted gloss; the same sign needs an `_IDLE` prediction in between to repeat. */
+  private lastGloss: string | null = null;
+  private lastActiveT = -Infinity; // last frame with a hand that is not `_IDLE`
+  private sentence: string[] = [];
+
+  constructor(predict: SignPredictor, opts: WordSegmenterOptions = {}) {
+    super();
+    this.predict = predict;
+    this.opts = { ...WORD_DEFAULTS, ...opts };
+  }
+
+  reset(): void {
+    this.frames = [];
+    this.framesSeen = 0;
+    this.lastLabel = null;
+    this.streakLabel = null;
+    this.streak = 0;
+    this.lastGloss = null;
+    this.lastActiveT = -Infinity;
+    this.sentence = [];
+  }
+
+  /** Same contract as `Segmenter.resume`. */
+  resume(pendingGlosses: ReadonlyArray<string>, t: number): void {
+    this.reset();
+    this.sentence = [...pendingGlosses];
+    this.lastActiveT = t;
+  }
+
+  push(f: FeatureVector, t: number): void {
+    const { window, stride } = this.opts;
+    this.frames.push(f);
+    if (this.frames.length > window) this.frames.shift();
+    this.framesSeen++;
+
+    if (hasHand(f)) {
+      // Only frames with a hand are classified; a hand-less frame is a pause, handled by time.
+      if (this.frames.length === window && (this.framesSeen - window) % stride === 0) {
+        this.onPrediction(this.predict(this.frames));
+      }
+      if (this.lastLabel !== IDLE) this.lastActiveT = t;
+    }
+
+    if (this.sentence.length > 0 && t - this.lastActiveT >= this.opts.sentenceGapMs) {
+      const glosses = this.sentence;
+      this.sentence = [];
+      this.lastGloss = null; // a new sentence may start with the same sign
+      this.streak = 0;
+      this.emit('sentenceEnd', glosses);
+    }
+  }
+
+  private onPrediction(p: Prediction): void {
+    const { threshold, stableCount } = this.opts;
+    this.lastLabel = p.label;
+    this.emit('sign', p);
+    if (p.label === IDLE) {
+      this.lastGloss = null; // the pause that allows repeating a sign
+      this.streak = 0;
+      return;
+    }
+    if (p.confidence < threshold) {
+      this.streak = 0;
+      return;
+    }
+    this.streak = p.label === this.streakLabel ? this.streak + 1 : 1;
+    this.streakLabel = p.label;
+    if (this.streak === stableCount && p.label !== this.lastGloss) {
+      this.lastGloss = p.label;
+      this.sentence.push(p.label);
+      this.emit('gloss', p.label);
+    }
   }
 }
 
