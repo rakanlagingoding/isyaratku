@@ -62,7 +62,7 @@ export default function BottomNav() {
       aria-label="Navigasi utama"
       className="border-t border-slate-800 bg-slate-950 pb-[env(safe-area-inset-bottom)]"
     >
-      <ul className="grid grid-cols-5">
+      <ul className="grid grid-cols-4">
         {NAV_ITEMS.map((item) => (
           <li key={item.to}>
             <NavLink

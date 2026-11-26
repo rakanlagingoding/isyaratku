@@ -7,7 +7,7 @@ import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   return (
-    <div className="flex h-dvh flex-col bg-slate-900 text-slate-100">
+    <div className="flex h-dvh flex-col bg-slate-900 pt-[env(safe-area-inset-top)] text-slate-100">
       <main className="min-h-0 flex-1 overflow-y-auto">
         <Routes>
           <Route path="/" element={<TranslatePage />} />

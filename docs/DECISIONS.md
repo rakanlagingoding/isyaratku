@@ -199,3 +199,11 @@ manusia — plus 13 mustPass dan 3 mustPassWithFace (R9). Uji mutasi (R5 "ke" �
 **Integrasi:** `sessionStore.takeSentence()` memakai Mode A; formatter sementara `glossesToText` (DECISIONS #30) dihapus.
 Jika `rules.json`/`lexicon.json`/korpus berubah, jalankan ulang `python eval/reference_rules.py --dump`.
 
+### #33 — 2026-11-27 — Terapkan Modern Web Guidance (Chrome/Edge/Firefox/MDN)
+`npx modern-web-guidance legacy-scan .` (termasuk tes): 1 temuan → `median()` memakai `toSorted()`; `tsconfig.app.json` lib naik
+ke **ES2023** (Chrome 110+, Safari 16+, Firefox 115+). Panduan `form-factor-adaptation`, `accessibility`, `motion`,
+`responsive-design` dicocokkan ke kode: safe-area atas di app shell (`viewport-fit=cover`), BottomNav `grid-cols-4` (sisa
+kolom menu Rekam), `ConfidenceHint` bukan live region (berubah tiap frame), opsi "Kata" memakai `aria-disabled` (tetap bisa
+difokus, alasan terbaca), `text-wrap: balance/pretty` dan `overflow-wrap: break-word`. Sudah sesuai: `h-dvh`, safe-area bawah,
+focus ring, tidak ada animasi. Legacy-scan hanya mencakup ±20% korpus panduan.
+

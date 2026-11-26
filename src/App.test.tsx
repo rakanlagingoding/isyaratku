@@ -20,6 +20,22 @@ describe('App layout', () => {
     expect(labels).toEqual(['Terjemah', 'Percakapan', 'Belajar', 'Pengaturan']);
   });
 
+  it('lays the nav out in one column per tab (no empty slot)', () => {
+    renderAt('/pengaturan');
+    const list = within(screen.getByRole('navigation', { name: 'Navigasi utama' })).getByRole(
+      'list',
+    );
+    expect(list).toHaveClass(`grid-cols-${within(list).getAllByRole('listitem').length}`);
+  });
+
+  it('keeps the unavailable "Kata" option focusable and announces why (aria-disabled)', () => {
+    renderAt('/');
+    const kata = screen.getByRole('radio', { name: /Kata/ });
+    expect(kata).toHaveAttribute('aria-disabled', 'true');
+    expect(kata).not.toBeDisabled();
+    expect(kata).toHaveAccessibleName(/Model kata belum ada/);
+  });
+
   it('navigates between pages', () => {
     renderAt('/pengaturan');
     expect(screen.getByRole('heading', { name: 'Pengaturan' })).toBeInTheDocument();

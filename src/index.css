@@ -19,3 +19,17 @@ body,
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Long words never widen the page; balanced headings and no orphans (modern-web-guidance). */
+body {
+  overflow-wrap: break-word;
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p,
+li {
+  text-wrap: pretty;
+}

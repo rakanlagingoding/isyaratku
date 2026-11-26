@@ -156,8 +156,7 @@ export default function TranslatePage() {
             type="button"
             role="radio"
             aria-checked="false"
-            disabled
-            title="Model kata belum ada"
+            aria-disabled="true" // stays focusable so screen readers hear why (no click handler)
             className="min-h-12 rounded-xl bg-slate-800 font-semibold text-slate-400"
           >
             Kata <span className="block text-xs font-normal">Model kata belum ada</span>
