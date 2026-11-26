@@ -55,7 +55,8 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 - [ ] F13: `face.ts` + `emotion.ts` + unit test blendshapes sintetis
 - [ ] Emosi ke translator: R9 (alis naik → `?`) di Mode A, emosi + isQuestion di prompt Mode B
 - [ ] F6: `api/tts.ts` Azure SSML + fallback Web Speech
-- [ ] F7: `StageBar` 4 tahap, `EmotionBadge`, `TranslationText` (garis bawah kata tambahan)
+- [x] F7: `StageBar` 4 tahap + layout Terjemah (2026-11-26; tahap aktif: warna + ● + `aria-current`, ketuk = detail; Ekspresi belum aktif sampai F13; dicek 360 px)
+- [ ] F7: `EmotionBadge`, `TranslationText` (garis bawah kata tambahan)
 - [ ] F8 Percakapan, F11 Pengaturan (termasuk kalibrasi wajah netral)
 - [ ] Optimasi ≥ 15 FPS dengan tangan + wajah aktif
 - [ ] (Opsional) F9 Belajar

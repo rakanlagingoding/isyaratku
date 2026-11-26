@@ -93,6 +93,18 @@ describe('speak', () => {
   });
 });
 
+describe('speak onEnd', () => {
+  it('calls onEnd when the utterance finishes or fails', () => {
+    const { env, spoken } = fakeEnv();
+    let ended = 0;
+    speak('Rakan', { onEnd: () => ended++ }, env);
+    const u = spoken[0] as unknown as { onend: () => void; onerror: () => void };
+    u.onend();
+    u.onerror();
+    expect(ended).toBe(2);
+  });
+});
+
 describe('stopSpeaking', () => {
   it('cancels speech', () => {
     const { env, synth } = fakeEnv();

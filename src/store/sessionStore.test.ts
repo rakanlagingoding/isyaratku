@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useSessionStore } from './sessionStore';
+import { currentStage, useSessionStore } from './sessionStore';
 
 const store = () => useSessionStore.getState();
 
@@ -65,6 +65,22 @@ describe('sessionStore', () => {
     store().pause();
     expect(store().wordBuffer).toBe('');
     expect(store().glosses).toEqual(['FS:RAKAN']);
+  });
+
+  it('currentStage follows the pipeline: hands -> interpretation -> voice', () => {
+    const base = { running: true, speaking: false, wordBuffer: '', glosses: [] as string[] };
+    expect(currentStage({ ...base, running: false })).toBeNull();
+    expect(currentStage(base)).toBe('tangan');
+    expect(currentStage({ ...base, wordBuffer: 'RA' })).toBe('tangan');
+    expect(currentStage({ ...base, glosses: ['FS:RAKAN'] })).toBe('interpretasi');
+    expect(currentStage({ ...base, glosses: ['FS:RAKAN'], wordBuffer: 'A' })).toBe('tangan');
+    expect(currentStage({ ...base, running: false, speaking: true })).toBe('suara');
+  });
+
+  it('clear() also stops the speaking flag', () => {
+    store().setSpeaking(true);
+    store().clear();
+    expect(store().speaking).toBe(false);
   });
 
   it('start and pause toggle running', () => {

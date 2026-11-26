@@ -11,7 +11,11 @@ export type SpeechEnv = {
   Utterance?: typeof SpeechSynthesisUtterance;
 };
 
-export type SpeakOptions = { emotion?: Emotion };
+export type SpeakOptions = {
+  emotion?: Emotion;
+  /** Called when the utterance finishes or fails (drives the "Suara" stage). */
+  onEnd?: () => void;
+};
 
 function browserEnv(): SpeechEnv {
   if (typeof window === 'undefined') return {};
@@ -53,6 +57,7 @@ export function speak(
   // Voices load asynchronously on some browsers; pick at speak time and fall back to the default voice.
   const voice = pickVoice(synth.getVoices());
   if (voice) utterance.voice = voice;
+  if (opts.onEnd) utterance.onend = utterance.onerror = opts.onEnd;
   synth.cancel();
   synth.speak(utterance);
   return true;

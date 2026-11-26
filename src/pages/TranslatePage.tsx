@@ -3,20 +3,22 @@ import CameraView from '../components/CameraView';
 import CaptionBar from '../components/CaptionBar';
 import ConfidenceHint from '../components/ConfidenceHint';
 import GlossChips from '../components/GlossChips';
+import StageBar from '../components/StageBar';
 import { loadModels, type Classifier } from '../lib/classifier';
 import { toFeatures } from '../lib/features';
-import { Segmenter } from '../lib/segmenter';
+import { fingerspellToWord, Segmenter } from '../lib/segmenter';
 import { isSpeechSupported, speak, stopSpeaking } from '../lib/speech';
-import { useSessionStore } from '../store/sessionStore';
+import { currentStage, useSessionStore, type Stage } from '../store/sessionStore';
 import type { HandFrame } from '../types';
 
 const THRESHOLD = 0.8; // PRD F4 default; adjustable in F11 (Phase 7)
 
-// Phase 3 (F7 v1): fingerspelling -> FS: chips -> spoken sentence. StageBar/face/translator come later.
+// F7: fingerspelling -> FS: chips -> spoken sentence, shown as the 4-stage StageBar.
+// The face stage (F13) and the translator (F5) come in later phases.
 export default function TranslatePage() {
   const [classifier, setClassifier] = useState<Classifier | null>(null);
   const segmenterRef = useRef<Segmenter | null>(null);
-  const { running, glosses, wordBuffer, active, sentence } = useSessionStore();
+  const { running, glosses, wordBuffer, active, sentence, speaking } = useSessionStore();
   const { start, pause, removeGloss, clear } = useSessionStore();
   const [speechOk] = useState(() => isSpeechSupported());
 
@@ -34,6 +36,11 @@ export default function TranslatePage() {
     };
   }, []);
 
+  const say = useCallback((text: string) => {
+    const { setSpeaking } = useSessionStore.getState();
+    if (speak(text, { onEnd: () => setSpeaking(false) })) setSpeaking(true);
+  }, []);
+
   useEffect(() => {
     if (!classifier) return;
     const seg = new Segmenter((f) => classifier.predictLetter(f), { threshold: THRESHOLD });
@@ -48,7 +55,7 @@ export default function TranslatePage() {
       seg.on('sentenceEnd', () => {
         // Use the chips, not the event payload: the user may have removed some.
         const text = s.takeSentence();
-        if (text) speak(text);
+        if (text) say(text);
       }),
     ];
     segmenterRef.current = seg;
@@ -56,7 +63,7 @@ export default function TranslatePage() {
       offs.forEach((off) => off());
       segmenterRef.current = null;
     };
-  }, [classifier]);
+  }, [classifier, say]);
 
   const onFrame = useCallback((frame: HandFrame, aspect: number) => {
     const seg = segmenterRef.current;
@@ -83,6 +90,27 @@ export default function TranslatePage() {
 
   const mock = classifier?.status('letters') === 'mock';
 
+  const stageDetail = (stage: Stage) => {
+    switch (stage) {
+      case 'tangan':
+        if (!running) return 'Tekan Mulai untuk mengenali isyarat.';
+        return active
+          ? `Huruf terlihat: ${active.label} (${Math.round(active.confidence * 100)}%)${
+              wordBuffer ? ` · mengeja ${wordBuffer}` : ''
+            }`
+          : 'Tangan belum terlihat.';
+      case 'ekspresi':
+        return 'Deteksi ekspresi wajah belum tersedia.';
+      case 'interpretasi':
+        if (glosses.length > 0)
+          return `${glosses.map(fingerspellToWord).join(' ')} → menunggu akhir kalimat`;
+        return sentence ? `Hasil terakhir: ${sentence}` : 'Belum ada isyarat untuk diterjemahkan.';
+      case 'suara':
+        if (!speechOk) return 'Suara tidak didukung browser ini.';
+        return speaking ? `Berbicara: "${sentence}"` : 'Tidak sedang berbicara.';
+    }
+  };
+
   return (
     <section className="flex h-full flex-col" aria-label="Terjemah">
       <h1 className="sr-only">Terjemah</h1>
@@ -108,6 +136,10 @@ export default function TranslatePage() {
       </div>
 
       <div className="flex flex-col gap-3 p-3">
+        <StageBar
+          current={currentStage({ running, speaking, wordBuffer, glosses })}
+          renderDetail={stageDetail}
+        />
         <CaptionBar text={sentence} spelling={wordBuffer} />
         {!speechOk && <p className="text-sm text-amber-300">Suara tidak didukung browser ini.</p>}
 
@@ -126,7 +158,7 @@ export default function TranslatePage() {
             aria-checked="false"
             disabled
             title="Model kata belum ada"
-            className="min-h-12 rounded-xl bg-slate-800 font-semibold text-slate-500"
+            className="min-h-12 rounded-xl bg-slate-800 font-semibold text-slate-400"
           >
             Kata <span className="block text-xs font-normal">Model kata belum ada</span>
           </button>
@@ -145,7 +177,7 @@ export default function TranslatePage() {
           </button>
           <button
             type="button"
-            onClick={() => speak(sentence)}
+            onClick={() => say(sentence)}
             disabled={!sentence || !speechOk}
             className="min-h-14 rounded-xl bg-slate-700 text-base font-semibold text-white disabled:opacity-50"
           >
