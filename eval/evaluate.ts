@@ -52,7 +52,7 @@ export function evaluate(pairs: readonly Pair[]): { rows: Row[]; summary: Summar
 }
 
 const csvField = (v: string | null) =>
-  v === null ? '' : /[",\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
+  v === null ? '' : /[",\r\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
 
 export function toCsv(rows: readonly Row[]): string {
   const header = 'id,difficulty,glosses,reference,mode_a,mode_b';

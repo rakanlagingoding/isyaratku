@@ -31,6 +31,15 @@ describe('evaluate', () => {
   });
 });
 
+describe('toCsv line breaks', () => {
+  it('quotes a field containing a carriage return so the row stays intact', () => {
+    const csv = toCsv([
+      { id: 'p9', difficulty: 'sulit', glosses: 'X', reference: 'a', modeA: 'baris\rdua', modeB: null },
+    ]);
+    expect(csv.split('\n')[1]).toBe('p9,sulit,X,a,"baris\rdua",');
+  });
+});
+
 describe('toCsv', () => {
   it('quotes fields with commas or quotes and doubles embedded quotes', () => {
     const csv = toCsv([
