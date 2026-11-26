@@ -68,7 +68,8 @@ export function handCount(frame: HandFrame): number {
   return (frame.left ? 1 : 0) + (frame.right ? 1 : 0);
 }
 
-const HAND_COLORS = { left: '#38bdf8', right: '#f472b6' } as const;
+const HAND_COLOR = '#ffffff';
+const GLOW_COLOR = 'rgba(255, 255, 255, 0.85)';
 
 /**
  * Draw both hands onto a canvas whose size matches the video frame.
@@ -83,14 +84,16 @@ export function drawHands(
 ): void {
   ctx.clearRect(0, 0, width, height);
   const radius = Math.max(3, width / 160);
+  // White glow. All dots share one path: shadowBlur is costly on phones, so blur 2 shapes, not 22.
+  ctx.strokeStyle = HAND_COLOR;
+  ctx.fillStyle = HAND_COLOR;
+  ctx.shadowColor = GLOW_COLOR;
+  ctx.shadowBlur = Math.max(6, width / 60);
+  ctx.lineWidth = Math.max(2, width / 240);
 
   for (const side of ['left', 'right'] as const) {
     const points = frame[side];
     if (!points) continue;
-    ctx.strokeStyle = HAND_COLORS[side];
-    ctx.fillStyle = HAND_COLORS[side];
-    ctx.lineWidth = Math.max(2, width / 240);
-
     ctx.beginPath();
     for (const [a, b] of HAND_CONNECTIONS) {
       const p = points[a];
@@ -101,10 +104,11 @@ export function drawHands(
     }
     ctx.stroke();
 
+    ctx.beginPath();
     for (const p of points) {
-      ctx.beginPath();
+      ctx.moveTo(p.x * width + radius, p.y * height); // start each circle on its edge: no joining line
       ctx.arc(p.x * width, p.y * height, radius, 0, Math.PI * 2);
-      ctx.fill();
     }
+    ctx.fill();
   }
 }
