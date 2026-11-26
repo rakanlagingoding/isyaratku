@@ -30,7 +30,9 @@ export default function StageBar({ current, renderDetail }: Props) {
                 aria-controls="stage-detail"
                 onClick={() => setOpen(open === id ? null : id)}
                 className={`flex min-h-12 w-full flex-col items-center justify-center rounded-lg px-1 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:outline-none ${
-                  isCurrent ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                  isCurrent
+                    ? 'bg-sky-500 text-slate-950'
+                    : 'bg-slate-800 text-slate-300 active:bg-slate-700'
                 } ${open === id ? 'ring-2 ring-white' : ''}`}
               >
                 <span aria-hidden={!isCurrent} className="text-[0.7rem] leading-none">

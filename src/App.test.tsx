@@ -36,6 +36,11 @@ describe('App layout', () => {
     expect(kata).toHaveAccessibleName(/Model kata belum ada/);
   });
 
+  it('renders the debug toggle as a native switch', () => {
+    renderAt('/pengaturan');
+    expect(screen.getByRole('checkbox', { name: /Mode debug/ })).toHaveAttribute('switch');
+  });
+
   it('navigates between pages', () => {
     renderAt('/pengaturan');
     expect(screen.getByRole('heading', { name: 'Pengaturan' })).toBeInTheDocument();

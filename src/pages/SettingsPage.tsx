@@ -16,6 +16,7 @@ export default function SettingsPage() {
         </span>
         <input
           type="checkbox"
+          {...{ switch: '' }} // native switch (HTML `switch` attribute); unsupported browsers show a checkbox
           className="h-6 w-6 accent-sky-500"
           checked={debug}
           onChange={(e) => setDebug(e.target.checked)}

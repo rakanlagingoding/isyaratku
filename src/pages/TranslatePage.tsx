@@ -169,7 +169,9 @@ export default function TranslatePage() {
             onClick={toggleRunning}
             disabled={!classifier}
             className={`min-h-14 rounded-xl text-lg font-bold disabled:opacity-50 ${
-              running ? 'bg-amber-500 text-slate-950' : 'bg-emerald-500 text-slate-950'
+              running
+                ? 'bg-amber-500 text-slate-950 active:bg-amber-400'
+                : 'bg-emerald-500 text-slate-950 active:bg-emerald-400'
             }`}
           >
             {running ? 'Jeda' : 'Mulai'}
@@ -178,14 +180,14 @@ export default function TranslatePage() {
             type="button"
             onClick={() => say(sentence)}
             disabled={!sentence || !speechOk}
-            className="min-h-14 rounded-xl bg-slate-700 text-base font-semibold text-white disabled:opacity-50"
+            className="min-h-14 rounded-xl bg-slate-700 text-base font-semibold text-white active:bg-slate-600 disabled:opacity-50"
           >
             Ucapkan ulang
           </button>
           <button
             type="button"
             onClick={clearAll}
-            className="min-h-14 rounded-xl bg-slate-700 text-lg font-semibold text-red-300"
+            className="min-h-14 rounded-xl bg-slate-700 text-lg font-semibold text-red-300 active:bg-slate-600"
           >
             Hapus
           </button>

@@ -312,8 +312,16 @@ export default function CameraView({ onFrame }: Props) {
       )}
 
       {(status === 'starting' || status === 'loading-model') && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/70 p-6 text-center text-lg text-white">
+        <div
+          role="status"
+          className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 p-6 text-center text-lg text-white"
+        >
           {status === 'starting' ? 'Membuka kamera…' : STAGE_TEXT[stage]}
+          {status === 'starting' && (
+            <span className="text-base text-slate-300">
+              Video hanya diproses di HP ini dan tidak dikirim ke mana pun.
+            </span>
+          )}
         </div>
       )}
 

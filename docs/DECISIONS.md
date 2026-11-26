@@ -207,3 +207,20 @@ kolom menu Rekam), `ConfidenceHint` bukan live region (berubah tiap frame), opsi
 difokus, alasan terbaca), `text-wrap: balance/pretty` dan `overflow-wrap: break-word`. Sudah sesuai: `h-dvh`, safe-area bawah,
 focus ring, tidak ada animasi. Legacy-scan hanya mencakup ±20% korpus panduan.
 
+### #34 — 2026-11-27 — Audit Modern Web Guidance penuh (210 panduan)
+`legacy-scan` otomatis hanya mencakup 38 panduan (0 temuan setelah #33). Sisanya dipilah manual dari `list` (210):
+- **Tidak berlaku (±181)** — fitur tidak ada di IsyaratKu: passkey/autentikasi, form alamat/pembayaran/OTP, Web Components,
+  tanggal & zona waktu, carousel, drag/swipe, dialog/menu/tooltip/popover, efek scroll, tabel, analitik/A-B test, WebGL/3D,
+  C++/WASM, WebMCP, kriptografi, on-device AI (Prompt/Translator API — fitur baru, bukan modernisasi).
+- **Sudah sesuai**: `navbar` (NavLink `aria-current`), `icons` (SVG `aria-hidden`), `checkbox`/`brand-consistent-forms`
+  (`accent-color`), `html` (`lang="id"`, landmark, heading), `css`, `color` (kontras dicek), `js` (tidak ada error re-throw
+  berbasis string), `performance`/`break-up-long-tasks` (deteksi di Web Worker; prediksi per frame kecil), `single-line-overflow`.
+- **Diterapkan**: `typography` (font nav `px` → `rem`), `switch` (toggle debug = `<input type="checkbox" switch>`, dites),
+  `spinner` (overlay loading `role="status"`), `privacy` (alasan & konteks sebelum izin kamera: video tidak dikirim),
+  `natural-interactions` (umpan balik tekan `active:` pada tombol), `respect-os-text-scale` (`<meta name="text-scale">`;
+  root font-size memang tidak diset).
+- **Ditunda**: `security`/`privacy`/`restrict-outbound-connections` (CSP + Permissions-Policy) — header CSP memutus HMR dev
+  server, diterapkan saat deploy (#18) lewat `vercel.json`; `content-first-noise-reduction` (layout Terjemah terlalu penuh,
+  ditunda pemilik); `dark-mode` (aplikasi sengaja gelap, toggle di F11); `install-web-app` (API install baru = fitur, bukan
+  modernisasi); `efficient-background-processing`/`detect-initial-visibility-state` (rAF sudah berhenti saat tab tersembunyi).
+

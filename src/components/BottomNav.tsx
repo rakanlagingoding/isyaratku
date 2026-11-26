@@ -69,7 +69,7 @@ export default function BottomNav() {
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
-                `flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium ${
+                `flex min-h-16 flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium ${
                   isActive ? 'text-sky-400' : 'text-slate-400 active:text-slate-200'
                 }`
               }
