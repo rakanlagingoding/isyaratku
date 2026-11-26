@@ -9,6 +9,8 @@ import type { HandFrame, Point3 } from '../types';
 // - the model is committed in public/models/ (float16 hand_landmarker from Google, Apache-2.0).
 export const MEDIAPIPE_WASM_PATH = '/mediapipe/wasm';
 export const HAND_MODEL_PATH = '/models/hand_landmarker.task';
+/** float16 face_landmarker from Google (Apache-2.0), committed like the hand model; F13 blendshapes. */
+export const FACE_MODEL_PATH = '/models/face_landmarker.task';
 
 export const LANDMARKS_PER_HAND = 21;
 

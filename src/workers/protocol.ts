@@ -1,5 +1,6 @@
 // Messages between CameraView (main thread) and handDetector.worker.ts.
 // Only ImageBitmaps of camera frames cross this boundary; they stay on the device.
+// The worker also runs the face landmarker (F13) and returns only blendshape scores.
 
 import type { Delegate } from '../lib/delegate';
 import type { LandmarkerOutput } from '../lib/landmarks';
@@ -33,7 +34,16 @@ export type FromWorker =
         waitCameraMs: number;
       };
     }
-  | ({ type: 'result'; timestamp: number; detectMs: number } & LandmarkerOutput)
+  | ({
+      type: 'result';
+      timestamp: number;
+      detectMs: number;
+      /**
+       * Face blendshapes by name (F13), only on frames where the face ran (every N frames):
+       * undefined = not run on this frame, null = ran but no face.
+       */
+      blendshapes?: Record<string, number> | null;
+    } & LandmarkerOutput)
   /** Frame arrived while the worker could not use it; send another later. */
   | { type: 'skipped' }
   | { type: 'error'; message: string };

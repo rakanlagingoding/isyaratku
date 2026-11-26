@@ -6,9 +6,10 @@
 // one result per frame. The main thread keeps at most one frame in flight, so the
 // worker always processes the newest frame and never builds a queue.
 
-import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+import { FaceLandmarker, FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
 import { chooseDelegate, median, shouldTryCpu, type Delegate } from '../lib/delegate';
-import { HAND_MODEL_PATH, MEDIAPIPE_WASM_PATH } from '../lib/landmarks';
+import { FACE_MODEL_PATH, HAND_MODEL_PATH, MEDIAPIPE_WASM_PATH } from '../lib/landmarks';
+import emotionConfig from '../data/emotion.json';
 import type { FromWorker, ToWorker } from './protocol';
 
 type FrameMsg = Extract<ToWorker, { type: 'frame' }>;
@@ -41,6 +42,9 @@ function warmUp(candidate: HandLandmarker): number {
 }
 
 let landmarker: HandLandmarker | null = null;
+/** Optional (F13): if it fails to load, hands keep working without expressions. */
+let face: FaceLandmarker | null = null;
+let frameCount = 0;
 let frameWaiter: ((frame: FrameMsg) => void) | null = null;
 let closed = false;
 /** When the first calibration frame arrived; calibration time excludes waiting for the camera. */
@@ -114,6 +118,7 @@ async function init(preferred: Delegate | null): Promise<void> {
       return;
     }
     landmarker = active;
+    void loadFace(fileset, delegate);
     const now = performance.now();
     const timings = {
       downloadMs: t1 - t0,
@@ -152,11 +157,50 @@ async function init(preferred: Delegate | null): Promise<void> {
   finish(active, delegate, { GPU: gpuMs, CPU: cpuMs }, false, tInit);
 }
 
+/** Load the face landmarker after hands are ready, so it never delays the first hand result. */
+async function loadFace(
+  fileset: Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>,
+  delegate: Delegate,
+): Promise<void> {
+  try {
+    const res = await fetch(`${scope.location.origin}${FACE_MODEL_PATH}`);
+    if (!res.ok) throw new Error(`Face model download failed: ${res.status}`);
+    const created = await FaceLandmarker.createFromOptions(fileset, {
+      baseOptions: { modelAssetBuffer: new Uint8Array(await res.arrayBuffer()), delegate },
+      runningMode: 'VIDEO',
+      numFaces: 1,
+      outputFaceBlendshapes: true,
+    });
+    if (closed) return created.close();
+    face = created;
+    console.info('FaceLandmarker ready', { delegate });
+  } catch (err) {
+    console.warn('FaceLandmarker unavailable; continuing without expressions', err);
+  }
+}
+
+/** Face every N frames (PRD F13) to keep the frame rate; a face error never drops the hand result. */
+function detectFace(frame: FrameMsg): Record<string, number> | null | undefined {
+  if (!face || frameCount % emotionConfig.runEveryNFrames !== 0) return undefined;
+  try {
+    const categories = face.detectForVideo(frame.bitmap, frame.timestamp).faceBlendshapes[0]
+      ?.categories;
+    return categories
+      ? Object.fromEntries(categories.map(({ categoryName, score }) => [categoryName, score]))
+      : null;
+  } catch (err) {
+    console.error('Face detectForVideo failed', err);
+    return undefined;
+  }
+}
+
 function detect(frame: FrameMsg, active: HandLandmarker): void {
   try {
+    frameCount++;
     const start = performance.now();
     const result = active.detectForVideo(frame.bitmap, frame.timestamp);
     const detectMs = performance.now() - start;
+    const blendshapes = detectFace(frame);
     post({
       type: 'result',
       timestamp: frame.timestamp,
@@ -166,6 +210,7 @@ function detect(frame: FrameMsg, active: HandLandmarker): void {
       handedness: result.handedness.map((cats) =>
         cats.map(({ categoryName, score }) => ({ categoryName, score })),
       ),
+      ...(blendshapes === undefined ? {} : { blendshapes }),
     });
   } catch (err) {
     console.error('detectForVideo failed', err);
@@ -200,6 +245,8 @@ scope.onmessage = (event) => {
       closed = true;
       landmarker?.close();
       landmarker = null;
+      face?.close();
+      face = null;
       scope.close();
       break;
   }

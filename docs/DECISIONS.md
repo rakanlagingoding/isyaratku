@@ -234,3 +234,17 @@ Kelas terpisah dari `Segmenter` (abjad) di `src/lib/segmenter.ts`, berbagi `Emit
 - Akhir kalimat mode kata 1000 ms (PRD F4); mode abjad tetap 2500 ms (#30) karena jeda antar kata eja sudah 1000 ms.
 - `_IDLE` diambil dari `vocab.signs.at(-1)` (aturan: label hanya dari `vocab.json`), tidak ditulis ulang.
 - Ganti mode saat berjalan: segmenter baru + `resume(chip yang ada)`; `setMode` mengosongkan `wordBuffer` dan `active`.
+
+### #36 — 2026-11-27 — Ekspresi wajah (F13) di worker yang sama dengan tangan
+- FaceLandmarker (`public/models/face_landmarker.task`, float16 Google, Apache-2.0, ±3,7 MB) dimuat di
+  `handDetector.worker.ts` **setelah** tangan siap, memakai fileset dan delegate yang sama, `numFaces: 1`,
+  `outputFaceBlendshapes: true`. Jalan tiap `emotion.json.runEveryNFrames` (3) frame. Worker hanya mengirim skor
+  blendshapes (angka), tidak ada gambar. Gagal dimuat → tangan tetap jalan tanpa ekspresi.
+- Tidak ada `face.ts` terpisah (PRD F13 menyebutnya): pemanggilan MediaPipe sudah di worker; `face.ts` hanya akan
+  membungkus satu fungsi. Logika murni ada di `src/lib/emotion.ts`.
+- Ringkasan kalimat (`FaceTracker`): emosi non-netral terbanyak jika ≥ 30% frame wajah, selain itu netral;
+  `isQuestion` jika `browInnerUp` ≥ ambang `bertanya` di ≥ 30% frame wajah 1 detik terakhir. Frame tanpa wajah
+  tidak dihitung. Memori terbatas: hitungan per emosi + daftar 1 detik terakhir.
+- Akhir kalimat: `takeSentence({emotion, isQuestion})` → Mode A R9; emosi → nada `speak`; disimpan untuk "Ucapkan ulang".
+- Tahap Ekspresi tidak pernah "aktif" di StageBar (berjalan bersamaan dengan Tangan); statusnya di detail tahap.
+- Ditunda: kalibrasi wajah netral (F11), `EmotionBadge` (F7).

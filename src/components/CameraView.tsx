@@ -14,6 +14,7 @@ import { HandSmoother, tweenHands } from '../lib/smoothing';
 import { useSettingsStore } from '../store/settingsStore';
 import type { FromWorker, LoadStage, ToWorker } from '../workers/protocol';
 import type { HandFrame } from '../types';
+import type { Blendshapes } from '../lib/emotion';
 
 type Status = 'starting' | 'loading-model' | 'running' | 'error';
 
@@ -31,6 +32,8 @@ type Props = {
    * (width / height), which `toFeatures` needs to make x and y comparable (DECISIONS #19).
    */
   onFrame?: (frame: HandFrame, aspect: number) => void;
+  /** Face blendshapes every few frames (F13); null = no face in view. */
+  onFace?: (blendshapes: Blendshapes | null, timestamp: number) => void;
 };
 
 const STAGE_TEXT: Record<LoadStage, string> = {
@@ -45,10 +48,11 @@ const WORKER_SUPPORTED = typeof Worker !== 'undefined';
 const formatMs = (ms: number | null) => (ms === null ? 'gagal' : `${ms.toFixed(0)}ms`);
 const formatSec = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
-export default function CameraView({ onFrame }: Props) {
+export default function CameraView({ onFrame, onFace }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const onFrameRef = useRef(onFrame);
+  const onFaceRef = useRef(onFace);
   const [status, setStatus] = useState<Status>(WORKER_SUPPORTED ? 'starting' : 'error');
   const [stage, setStage] = useState<LoadStage>('download');
   const [errorKind, setErrorKind] = useState<CameraErrorKind | 'model'>(
@@ -69,7 +73,8 @@ export default function CameraView({ onFrame }: Props) {
 
   useEffect(() => {
     onFrameRef.current = onFrame;
-  }, [onFrame]);
+    onFaceRef.current = onFace;
+  }, [onFrame, onFace]);
 
   useEffect(() => {
     if (!WORKER_SUPPORTED) return;
@@ -210,6 +215,7 @@ export default function CameraView({ onFrame }: Props) {
           const v = videoRef.current;
           const aspect = v && v.videoHeight > 0 ? v.videoWidth / v.videoHeight : 1;
           onFrameRef.current?.(frame, aspect);
+          if (msg.blendshapes !== undefined) onFaceRef.current?.(msg.blendshapes, msg.timestamp);
 
           detectMsAvg = detectMsAvg === 0 ? msg.detectMs : detectMsAvg * 0.9 + msg.detectMs * 0.1;
           const fps = meter.tick(msg.timestamp);

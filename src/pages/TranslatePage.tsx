@@ -7,22 +7,27 @@ import StageBar from '../components/StageBar';
 import { loadModels, type Classifier } from '../lib/classifier';
 import { toFeatures } from '../lib/features';
 import { fingerspellToWord, Segmenter, WordSegmenter, type GlossSegmenter } from '../lib/segmenter';
+import { FaceTracker, toEmotion, type Blendshapes } from '../lib/emotion';
 import { isSpeechSupported, speak, stopSpeaking } from '../lib/speech';
 import { currentStage, useSessionStore, type Stage } from '../store/sessionStore';
-import type { HandFrame } from '../types';
+import type { Emotion, HandFrame } from '../types';
 import vocab from '../data/vocab.json';
+import emotionConfig from '../data/emotion.json';
 
 const THRESHOLD = 0.8; // PRD F4 default; adjustable in F11 (Phase 7)
-const IDLE = vocab.signs.at(-1); // vocab.json: `_IDLE` is the last sign class
+const IDLE = vocab.signs.at(-1);
+const EMOTION_LABELS = emotionConfig.labels as Record<Emotion, string>; // vocab.json: `_IDLE` is the last sign class
 
 // F7: letters (fingerspelling) or words (signs) -> chips -> Mode A sentence -> voice, shown as the
-// 4-stage StageBar. The face stage (F13) comes in a later phase.
+// 4-stage StageBar. The face (F13) makes the sentence a question (R9) and sets the voice tone.
 export default function TranslatePage() {
   const [classifier, setClassifier] = useState<Classifier | null>(null);
   const segmenterRef = useRef<GlossSegmenter | null>(null);
   const { running, mode, glosses, wordBuffer, active, sentence, speaking } = useSessionStore();
+  const { emotion, sentenceFace } = useSessionStore();
   const { start, pause, setMode, removeGloss, clear } = useSessionStore();
   const [speechOk] = useState(() => isSpeechSupported());
+  const [face] = useState(() => new FaceTracker());
 
   useEffect(() => {
     let disposed = false;
@@ -38,9 +43,9 @@ export default function TranslatePage() {
     };
   }, []);
 
-  const say = useCallback((text: string) => {
+  const say = useCallback((text: string, emotion: Emotion) => {
     const { setSpeaking } = useSessionStore.getState();
-    if (speak(text, { onEnd: () => setSpeaking(false) })) setSpeaking(true);
+    if (speak(text, { emotion, onEnd: () => setSpeaking(false) })) setSpeaking(true);
   }, []);
 
   useEffect(() => {
@@ -71,8 +76,10 @@ export default function TranslatePage() {
       }),
       seg.on('sentenceEnd', () => {
         // Use the chips, not the event payload: the user may have removed some.
-        const text = s.takeSentence();
-        if (text) say(text);
+        const summary = face.summary(performance.now());
+        face.reset();
+        const text = s.takeSentence(summary);
+        if (text) say(text, summary.emotion);
       }),
     );
     // Switching mode while running: chips stay part of the open sentence.
@@ -82,13 +89,25 @@ export default function TranslatePage() {
       offs.forEach((off) => off());
       segmenterRef.current = null;
     };
-  }, [classifier, mode, say]);
+  }, [classifier, mode, say, face]);
 
   const onFrame = useCallback((frame: HandFrame, aspect: number) => {
     const seg = segmenterRef.current;
     if (!seg || !useSessionStore.getState().running) return;
     seg.push(toFeatures(frame, aspect), frame.timestamp);
   }, []);
+
+  const onFace = useCallback(
+    (blendshapes: Blendshapes | null, t: number) => {
+      const s = useSessionStore.getState();
+      if (!s.running) return;
+      const signal = blendshapes ? toEmotion(blendshapes) : null;
+      face.push(signal, t);
+      const next = signal?.emotion ?? null;
+      if (next !== s.emotion) s.setEmotion(next); // avoid a re-render on every face frame
+    },
+    [face],
+  );
 
   const toggleRunning = () => {
     if (running) {
@@ -104,6 +123,7 @@ export default function TranslatePage() {
   const clearAll = () => {
     clear();
     segmenterRef.current?.reset();
+    face.reset();
     stopSpeaking();
   };
 
@@ -120,7 +140,14 @@ export default function TranslatePage() {
             }`
           : 'Tangan belum terlihat.';
       case 'ekspresi':
-        return 'Deteksi ekspresi wajah belum tersedia.';
+        if (!running) {
+          return sentence
+            ? `Kalimat terakhir: ${EMOTION_LABELS[sentenceFace.emotion]}${
+                sentenceFace.isQuestion ? ' · kalimat tanya' : ''
+              }`
+            : 'Tekan Mulai untuk membaca ekspresi wajah.';
+        }
+        return emotion ? `Wajah: ${EMOTION_LABELS[emotion]}` : 'Wajah belum terlihat.';
       case 'interpretasi':
         if (glosses.length > 0)
           return `${glosses.map(fingerspellToWord).join(' ')} → menunggu akhir kalimat`;
@@ -135,7 +162,7 @@ export default function TranslatePage() {
     <section className="flex h-full flex-col" aria-label="Terjemah">
       <h1 className="sr-only">Terjemah</h1>
       <div className="relative min-h-0 flex-1">
-        <CameraView onFrame={onFrame} />
+        <CameraView onFrame={onFrame} onFace={onFace} />
         <div className="pointer-events-none absolute inset-x-3 top-14 [&_button]:pointer-events-auto">
           <GlossChips glosses={glosses} onRemove={removeGloss} />
         </div>
@@ -202,7 +229,7 @@ export default function TranslatePage() {
           </button>
           <button
             type="button"
-            onClick={() => say(sentence)}
+            onClick={() => say(sentence, sentenceFace.emotion)}
             disabled={!sentence || !speechOk}
             className="min-h-14 rounded-xl bg-slate-700 text-base font-semibold text-white active:bg-slate-600 disabled:opacity-50"
           >

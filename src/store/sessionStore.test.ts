@@ -58,6 +58,22 @@ describe('sessionStore', () => {
     expect(store().takeSentence()).toBe('Saya sudah makan.');
   });
 
+  it('takeSentence uses the face: raised brows make a question, the emotion is kept for replay', () => {
+    store().addGloss('KAMU');
+    store().addGloss('MAKAN');
+    store().addGloss('SUDAH');
+    expect(store().takeSentence({ emotion: 'senang', isQuestion: true })).toBe('Kamu sudah makan?');
+    expect(store().sentenceFace).toEqual({ emotion: 'senang', isQuestion: true });
+  });
+
+  it('setEmotion stores the live face emotion; clear() resets it', () => {
+    store().setEmotion('marah');
+    expect(store().emotion).toBe('marah');
+    store().clear();
+    expect(store().emotion).toBeNull();
+    expect(store().sentenceFace).toEqual({ emotion: 'netral', isQuestion: false });
+  });
+
   it('takeSentence returns an empty string when every chip was removed', () => {
     store().addGloss('FS:XQ');
     store().removeGloss(0);
