@@ -172,3 +172,20 @@ tangan** setelah ada gloss. PRD F4 memakai 1000 ms untuk keduanya, yang bentrok 
 belum diterapkan**.
 **Teks diucapkan (sementara):** `glossesToText` (`FS:RAKAN` → "Rakan", kapital awal, titik), diganti Mode A di Fase 6.
 Kalimat diambil dari chip yang tersisa (`takeSentence`), jadi chip yang dihapus tidak ikut terucap.
+
+### #31 — 2026-11-26 — Fase 4: notebook `train_signs.ipynb` (WL-BISINDO + Mendeley → GRU 64 kelas)
+**Pengecekan dataset (2026-11-26):** tidak ada dataset kata BISINDO baru yang layak; tetap WL-BISINDO + Mendeley. Label WL
+dari metadata repo (`signer{S}_label{L}_sample{N}.mp4`, 1.600 video, peraga 0–4) cocok 32/32 dengan `vocab.datasetLabels`.
+Mendeley bisa diunduh sebagai satu zip tanpa login (`public-api/zip/yzhzkzbnmw/download/3`).
+**Konversi:** video WL di-*resample* ke `TARGET_FPS = 15` (perkiraan laju deteksi HP) → HandLandmarker VIDEO mode → 126 fitur;
+segmen isyarat = frame pertama s.d. terakhir yang ada tangannya, di-resample ke 30 frame (seperti *temporal standardization*
+Mendeley). Mendeley: blok tangan kolom 107–148, aspek ditaksir dari data (aspek yang membuat panjang tulang tangan paling
+stabil; uji 1 sampel: 1,45, lebih baik dari 1,0), lalu `normalize_hand`.
+**`_IDLE`:** frame sebelum/sesudah isyarat di video WL + window tanpa tangan (nol). Belum mencakup "tangan terlihat tapi diam".
+**Split:** uji = WL peraga 4 (*signer-independent*, protokol paper) + 15% Mendeley stratified; validasi 15% sisa.
+**Augmentasi:** PRD §11.2 (rotasi, skala, noise, mirror) + **time-warp ×0,75–1,33** karena laju deteksi HP berbeda dari video.
+**Model:** PRD §11.2 dengan `GRU(reset_after=False)` — TF.js menjalankan persamaan Keras untuk mode ini (dicek
+`tfModel.test.ts`, termasuk uji mutasi urutan gate); kelas diberi bobot *balanced*. Ekspor manual (#23) + cek forward pass
+NumPy GRU di notebook.
+**Belum diverifikasi:** notebook belum dijalankan di Colab (lokal tanpa TensorFlow/MediaPipe); hanya bagian NumPy yang dites pada
+sampel Mendeley asli.

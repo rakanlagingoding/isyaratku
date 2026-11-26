@@ -35,9 +35,10 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 ## Fase 4 — Dataset kata (14–20 Des)
 
 - [x] Cari dataset BISINDO kata tambahan (2026-11-22). Dipakai: Mendeley `yzhzkzbnmw` (Binus, CC BY 4.0, 40 kata × 60 sampel landmark). Tata letak 447 kolom dipastikan dari data (DECISIONS #29); vocab kamera jadi 63 gloss + `_IDLE`.
-- [ ] Unduh WL-BISINDO (Kaggle, 2,16 GB), konversi video → landmark (resample ke laju deteksi aplikasi, `_IDLE` dari awal/akhir video; DECISIONS #22)
-- [ ] Unduh Mendeley `yzhzkzbnmw` (±258 MB), ambil blok tangan kolom 107–148, taksir `aspect` (±16/9), normalisasi ulang (DECISIONS #29)
-- [ ] Notebook `train_signs.ipynb` + augmentasi, uji signer-independent
+- [ ] Unduh WL-BISINDO (Kaggle, 2,16 GB), konversi video → landmark (resample ke laju deteksi aplikasi, `_IDLE` dari awal/akhir video; DECISIONS #22) — dikerjakan otomatis oleh `train_signs.ipynb`
+- [ ] Unduh Mendeley `yzhzkzbnmw` (±258 MB), ambil blok tangan kolom 107–148, taksir `aspect` (±16/9), normalisasi ulang (DECISIONS #29) — dikerjakan otomatis oleh `train_signs.ipynb`
+- [x] Notebook `train_signs.ipynb` + augmentasi + time-warp, uji signer-independent (2026-11-26; DECISIONS #31; bagian NumPy dites pada sampel Mendeley asli, belum dijalankan di Colab)
+- [ ] Jalankan `train_signs.ipynb` di Colab, catat akurasi + macro-F1, salin model ke `public/models/signs/`
 
 ## Fase 5 — Model kata (21–27 Des)
 

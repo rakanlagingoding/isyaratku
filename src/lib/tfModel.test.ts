@@ -179,3 +179,127 @@ describe('wrapLayersModel', () => {
     runner.dispose();
   });
 });
+
+/**
+ * The signs model (Fase 4) is GRU 64 -> GRU 64 -> Dense 64 -> Softmax, exported by the notebook's
+ * save_tfjs_layers_model() with reset_after=False. Check TF.js runs that config with Keras' GRU maths:
+ * z = σ(xWz + hUz + bz), r = σ(xWr + hUr + br), h~ = tanh(xWh + (r·h)Uh + bh), h' = z·h + (1−z)·h~.
+ */
+describe('notebook export format (GRU)', () => {
+  const T = 4;
+  const IN = 3;
+  const U = 2;
+  const seq = (n: number, k: number) =>
+    Float32Array.from({ length: n }, (_, i) => Math.sin(i * 1.7 + k) * 0.3);
+  const kernel = seq(IN * 3 * U, 1); // [IN, 3U], gate order z | r | h
+  const recurrent = seq(U * 3 * U, 2); // [U, 3U]
+  const bias = seq(3 * U, 3);
+  const sigmoid = (v: number) => 1 / (1 + Math.exp(-v));
+
+  function kerasGru(x: number[][]): number[] {
+    let h = new Array<number>(U).fill(0);
+    for (const xt of x) {
+      const gate = (g: number, j: number, hv: number[]) => {
+        let s = bias[g * U + j] ?? 0;
+        xt.forEach((v, i) => (s += v * (kernel[i * 3 * U + g * U + j] ?? 0)));
+        hv.forEach((v, i) => (s += v * (recurrent[i * 3 * U + g * U + j] ?? 0)));
+        return s;
+      };
+      const z = h.map((_, j) => sigmoid(gate(0, j, h)));
+      const r = h.map((_, j) => sigmoid(gate(1, j, h)));
+      const rh = h.map((v, j) => v * (r[j] ?? 0));
+      const cand = h.map((_, j) => Math.tanh(gate(2, j, rh)));
+      h = h.map((v, j) => (z[j] ?? 0) * v + (1 - (z[j] ?? 0)) * (cand[j] ?? 0));
+    }
+    return h;
+  }
+
+  it('loads a tf_keras GRU (reset_after=False) and matches the Keras equations', async () => {
+    const artifacts: tf.io.ModelArtifacts = {
+      format: 'layers-model',
+      modelTopology: {
+        class_name: 'Sequential',
+        config: {
+          name: 'sequential',
+          layers: [
+            {
+              class_name: 'InputLayer',
+              config: {
+                batch_input_shape: [null, T, IN],
+                dtype: 'float32',
+                sparse: false,
+                ragged: false,
+                name: 'input_1',
+              },
+            },
+            {
+              module: 'keras.layers',
+              class_name: 'GRU',
+              config: {
+                name: 'gru',
+                trainable: true,
+                dtype: 'float32',
+                return_sequences: false,
+                return_state: false,
+                go_backwards: false,
+                stateful: false,
+                unroll: false,
+                time_major: false,
+                units: U,
+                activation: 'tanh',
+                recurrent_activation: 'sigmoid',
+                use_bias: true,
+                kernel_initializer: {
+                  module: 'keras.initializers',
+                  class_name: 'GlorotUniform',
+                  config: { seed: null },
+                  registered_name: null,
+                },
+                recurrent_initializer: {
+                  module: 'keras.initializers',
+                  class_name: 'Orthogonal',
+                  config: { gain: 1.0, seed: null },
+                  registered_name: null,
+                },
+                bias_initializer: {
+                  module: 'keras.initializers',
+                  class_name: 'Zeros',
+                  config: {},
+                  registered_name: null,
+                },
+                kernel_regularizer: null,
+                recurrent_regularizer: null,
+                bias_regularizer: null,
+                activity_regularizer: null,
+                kernel_constraint: null,
+                recurrent_constraint: null,
+                bias_constraint: null,
+                dropout: 0.0,
+                recurrent_dropout: 0.0,
+                reset_after: false,
+              },
+              registered_name: null,
+            },
+          ],
+        },
+        keras_version: '2.21.0',
+        backend: 'tensorflow',
+      },
+      weightSpecs: [
+        { name: 'gru/kernel', shape: [IN, 3 * U], dtype: 'float32' },
+        { name: 'gru/recurrent_kernel', shape: [U, 3 * U], dtype: 'float32' },
+        { name: 'gru/bias', shape: [3 * U], dtype: 'float32' },
+      ],
+      weightData: new Float32Array([...kernel, ...recurrent, ...bias]).buffer,
+    };
+    const model = await tf.loadLayersModel(tf.io.fromMemory(artifacts));
+    const x = Array.from({ length: T }, (_, t) =>
+      Array.from({ length: IN }, (_, i) => Math.cos(t + i) * 0.5),
+    );
+    const got = tf.tidy(() =>
+      Array.from((model.predict(tf.tensor3d([x])) as tf.Tensor).dataSync()),
+    );
+    kerasGru(x).forEach((v, j) => expect(got[j]).toBeCloseTo(v, 5));
+    model.dispose();
+  });
+});
