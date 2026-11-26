@@ -81,6 +81,8 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Bug dan catatan
 
+- 2026-11-26 (uji HP): halaman Terjemah terasa terlalu penuh setelah StageBar ditambah (StageBar + teks hasil + toggle + 3 tombol + menu bawah). Ditunda pemilik; rapikan saat Fase 7 (mis. gabung toggle/tombol, StageBar lebih ringkas).
+
 - 2026-11-23 (Fase 3): dependency baru `vite-plugin-pwa` (dev); `cloudflared` 2026.11.1 dipasang lewat winget. 105 tes lolos. Belum diverifikasi di HP: suara `id-ID` di HP, install PWA, akurasi eja realtime.
 - 2026-11-22: "Model deteksi tangan gagal dimuat" di HP — penyebab: membuka alamat lama `192.168.1.6` setelah laptop pindah Wi-Fi (IP baru `192.168.100.246`); aset worker tidak terunduh. Bukan bug kode.
 
