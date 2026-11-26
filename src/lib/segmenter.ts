@@ -171,13 +171,3 @@ export function fingerspellToWord(gloss: string): string {
   }
   return gloss.toLowerCase().replace(/-/g, ' ');
 }
-
-/**
- * Text to speak until the translator exists (Phase 6, Mode A rule R1 takes over):
- * words joined by spaces, capital first letter, final period.
- */
-export function glossesToText(glosses: ReadonlyArray<string>): string {
-  if (glosses.length === 0) return '';
-  const text = glosses.map(fingerspellToWord).join(' ');
-  return `${text.charAt(0).toUpperCase()}${text.slice(1)}.`;
-}

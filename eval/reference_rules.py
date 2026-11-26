@@ -80,6 +80,15 @@ def translate(glosses, is_question=False):
 
 
 if __name__ == "__main__":
+    import sys
+
+    if "--dump" in sys.argv:
+        # Expected Mode A output per pair id; src/lib/translator/ruleBased.test.ts must match it exactly.
+        out = {p["id"]: translate(p["glosses"]) for p in PAIRS}
+        with open("eval/reference_outputs.json", "w", encoding="utf-8", newline="\n") as f:
+            json.dump(out, f, ensure_ascii=False, indent=2)
+            f.write("\n")
+        print(f"wrote eval/reference_outputs.json ({len(out)} pairs)")
     for case in RULES["mustPass"]:
         got = translate(case["glosses"])
         status = "OK " if got == case["expected"] else "FAIL"

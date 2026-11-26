@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { glossesToText } from '../lib/segmenter';
+import { translateRuleBased } from '../lib/translator/ruleBased';
 import type { RecognitionMode } from '../types';
 
 // Live state of the Translate page (not persisted).
@@ -56,7 +56,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
   setSpeaking: (speaking) => set({ speaking }),
   finishSentence: (sentence) => set({ sentence, glosses: [], wordBuffer: '' }),
   takeSentence: () => {
-    const text = glossesToText(get().glosses);
+    const text = translateRuleBased(get().glosses); // Mode A (F5); Mode B comes with api/translate
     if (text) get().finishSentence(text);
     return text;
   },

@@ -51,6 +51,13 @@ describe('sessionStore', () => {
     expect(store().glosses).toEqual([]);
   });
 
+  it('takeSentence translates the chips with Mode A (gloss order -> Indonesian order)', () => {
+    store().addGloss('SAYA');
+    store().addGloss('MAKAN');
+    store().addGloss('SUDAH');
+    expect(store().takeSentence()).toBe('Saya sudah makan.');
+  });
+
   it('takeSentence returns an empty string when every chip was removed', () => {
     store().addGloss('FS:XQ');
     store().removeGloss(0);

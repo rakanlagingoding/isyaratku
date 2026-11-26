@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { FeatureVector, Prediction } from '../types';
 import { FEATURE_LENGTH } from './features';
-import { fingerspellToWord, glossesToText, Segmenter } from './segmenter';
+import { fingerspellToWord, Segmenter } from './segmenter';
 
 /** A frame marker: a letter with a confidence, or null for "no hand in view". */
 type Step = [label: string, confidence: number] | null;
@@ -129,14 +129,9 @@ describe('Segmenter.resume (after a pause)', () => {
   });
 });
 
-describe('fingerspellToWord / glossesToText', () => {
+describe('fingerspellToWord', () => {
   it('writes fingerspelled glosses as capitalized words', () => {
     expect(fingerspellToWord('FS:RAKAN')).toBe('Rakan');
     expect(fingerspellToWord('TERIMA-KASIH')).toBe('terima kasih');
-  });
-
-  it('builds a spoken sentence', () => {
-    expect(glossesToText(['FS:RAKAN', 'FS:ADI'])).toBe('Rakan Adi.');
-    expect(glossesToText([])).toBe('');
   });
 });

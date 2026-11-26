@@ -47,7 +47,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Fase 6 — Mesin penerjemah (28 Des–3 Jan)
 
-- [ ] F5 Mode A: `ruleBased.ts` lolos semua tes contoh PRD (mustPass 13 + mustPassWithFace 3)
+- [x] F5 Mode A: `ruleBased.ts` lolos mustPass 13 + mustPassWithFace 3, dan identik dengan `reference_rules.py` di 72 pasangan korpus (2026-11-26; dipakai halaman Terjemah untuk kalimat dari chip)
 - [ ] F5 Mode B: `api/translate.ts` + fallback (cara menjalankan API lokal, DECISIONS #18)
 - [ ] `eval/run_eval.ts`: BLEU + chrF Mode A vs B
 

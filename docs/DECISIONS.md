@@ -189,3 +189,13 @@ stabil; uji 1 sampel: 1,45, lebih baik dari 1,0), lalu `normalize_hand`.
 NumPy GRU di notebook.
 **Belum diverifikasi:** notebook belum dijalankan di Colab (lokal tanpa TensorFlow/MediaPipe); hanya bagian NumPy yang dites pada
 sampel Mendeley asli.
+
+### #32 — 2026-11-26 — Mode A (`ruleBased.ts`) dibuktikan identik dengan spesifikasi Python
+`eval/reference_rules.py --dump` menulis `eval/reference_outputs.json` (output Python per id pasangan). `ruleBased.test.ts`
+membandingkan **seluruh** 72 pasangan dengan file itu — termasuk 11 pasangan "sulit" yang memang tidak sama dengan referensi
+manusia — plus 13 mustPass dan 3 mustPassWithFace (R9). Uji mutasi (R5 "ke" → "di") membuat 3 tes merah.
+**Perilaku tambahan:** gloss di luar `lexicon.json` melempar error (spesifikasi Python juga gagal), dijaga tes bahwa semua gloss
+`vocab.signs` + `textOnly` dikenal; daftar gloss kosong → string kosong.
+**Integrasi:** `sessionStore.takeSentence()` memakai Mode A; formatter sementara `glossesToText` (DECISIONS #30) dihapus.
+Jika `rules.json`/`lexicon.json`/korpus berubah, jalankan ulang `python eval/reference_rules.py --dump`.
+
