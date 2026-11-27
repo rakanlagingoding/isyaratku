@@ -248,3 +248,17 @@ Kelas terpisah dari `Segmenter` (abjad) di `src/lib/segmenter.ts`, berbagi `Emit
 - Akhir kalimat: `takeSentence({emotion, isQuestion})` → Mode A R9; emosi → nada `speak`; disimpan untuk "Ucapkan ulang".
 - Tahap Ekspresi tidak pernah "aktif" di StageBar (berjalan bersamaan dengan Tangan); statusnya di detail tahap.
 - Ditunda: kalibrasi wajah netral (F11), `EmotionBadge` (F7).
+
+### #37 — 2026-11-27 — Mode kata: window 15 fps, jeda antar gloss 600 ms, penghalusan lebih ringan
+Uji HP pertama (iPhone, 31 FPS deteksi): chip lambat muncul dan salah kata ("Saya marah berangkat air apa air?").
+- **Akar masalah:** model dilatih dengan 30 frame = satu isyarat utuh pada `TARGET_FPS` 15 (±2 dtk), tetapi
+  `WordSegmenter` memakai 30 frame kamera terakhir; di 31 FPS itu hanya ±1 dtk (setengah isyarat). Model ragu dan
+  menebak kelas lemah (BERANGKAT, AIR). **Perbaikan:** opsi `fps` (15) — frame kamera disampel berdasarkan waktu
+  ke 15 fps sebelum masuk window. `fps` wajib sama dengan `TARGET_FPS` notebook.
+- **Kata salah saat transisi:** gloss baru butuh ≥ `minGlossGapMs` (600 ms) sejak gloss sebelumnya. Syarat stabil
+  diubah ke `streak >= 3` agar isyarat yang tetap stabil melewati jeda tetap diterima.
+- **Debug:** `Prediction.top` (3 label teratas); di Mode debug tampil di bawah petunjuk confidence, untuk
+  mencocokkan peragaan dengan dataset.
+- **Garis tangan tertinggal:** One Euro `minCutoff` 0,5 → 1,0 dan tween τ 45 → 20 ms (#14 disetel untuk 10–15 FPS).
+  Fitur ke segmenter ikut sedikit kurang halus; mode abjad perlu dicek ulang di HP.
+- Ditunda: latih ulang kelas lemah (BERANGKAT 0,00; AIR, HIJAU, BAGAIMANA).

@@ -117,8 +117,12 @@ export class Classifier {
       const index = Math.min(labels.length - 1, Math.floor(this.random() * labels.length));
       return { label: labelAt(labels, index), confidence: this.random() * MOCK_MAX_CONFIDENCE };
     }
-    const { index, value } = argmax(runner.run(input, shape));
-    return { label: labelAt(labels, index), confidence: value };
+    const scores = runner.run(input, shape);
+    const { index, value } = argmax(scores);
+    const top = Array.from(scores, (confidence, i) => ({ label: labelAt(labels, i), confidence }))
+      .toSorted((a, b) => b.confidence - a.confidence)
+      .slice(0, 3);
+    return { label: labelAt(labels, index), confidence: value, top };
   }
 }
 

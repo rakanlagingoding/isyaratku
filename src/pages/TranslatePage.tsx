@@ -10,6 +10,7 @@ import { fingerspellToWord, Segmenter, WordSegmenter, type GlossSegmenter } from
 import { FaceTracker, toEmotion, type Blendshapes } from '../lib/emotion';
 import { isSpeechSupported, speak, stopSpeaking } from '../lib/speech';
 import { currentStage, useSessionStore, type Stage } from '../store/sessionStore';
+import { useSettingsStore } from '../store/settingsStore';
 import type { Emotion, HandFrame } from '../types';
 import vocab from '../data/vocab.json';
 import emotionConfig from '../data/emotion.json';
@@ -28,6 +29,7 @@ export default function TranslatePage() {
   const { start, pause, setMode, removeGloss, clear } = useSessionStore();
   const [speechOk] = useState(() => isSpeechSupported());
   const [face] = useState(() => new FaceTracker());
+  const debug = useSettingsStore((s) => s.debug);
 
   useEffect(() => {
     let disposed = false;
@@ -62,11 +64,7 @@ export default function TranslatePage() {
       seg = letters;
     } else {
       const words = new WordSegmenter((w) => classifier.predictSign(w), { threshold: THRESHOLD });
-      offs.push(
-        words.on('sign', ({ label, confidence }) =>
-          s.setActive(label === IDLE ? null : { label, confidence }),
-        ),
-      );
+      offs.push(words.on('sign', (p) => s.setActive(p.label === IDLE ? null : p)));
       seg = words;
     }
     offs.push(
@@ -173,6 +171,12 @@ export default function TranslatePage() {
               confidence={active.confidence}
               threshold={THRESHOLD}
             />
+          )}
+          {running && debug && active?.top && (
+            // Debug: what else the model considered, to compare a sign with the dataset.
+            <p className="rounded bg-black/70 px-2 py-1 font-mono text-sm text-lime-300">
+              {active.top.map((p) => `${p.label} ${Math.round(p.confidence * 100)}%`).join(' · ')}
+            </p>
           )}
           {mock && (
             <span className="rounded-full bg-amber-500/90 px-3 py-1 text-sm font-semibold text-slate-950">

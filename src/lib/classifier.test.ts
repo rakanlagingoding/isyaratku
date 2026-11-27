@@ -83,11 +83,25 @@ describe('Classifier with a model', () => {
     const classifier = new Classifier({ letters });
     expect(classifier.status('letters')).toBe('model');
     expect(classifier.status('signs')).toBe('mock');
-    expect(classifier.predictLetter(features())).toEqual({
+    expect(classifier.predictLetter(features())).toMatchObject({
       label: 'R',
       confidence: expect.closeTo(0.9, 5) as number,
     });
     expect(letters.run).toHaveBeenCalledWith(expect.any(Float32Array), [1, FEATURE_LENGTH]);
+  });
+
+  it('lists the 3 best labels, highest first (debug view)', () => {
+    const n = vocab.signs.length;
+    const scores = new Float32Array(n);
+    scores[vocab.signs.indexOf('APA')] = 0.6;
+    scores[vocab.signs.indexOf('CARI')] = 0.25;
+    scores[vocab.signs.indexOf('AIR')] = 0.1;
+    scores[vocab.signs.indexOf('MAKAN')] = 0.05;
+    const signs: ModelRunner = { outputSize: n, run: () => scores, dispose: () => {} };
+    const window = Array.from({ length: SIGN_WINDOW }, features);
+    const top = new Classifier({ signs }).predictSign(window).top;
+    expect(top?.map((p) => p.label)).toEqual(['APA', 'CARI', 'AIR']);
+    expect(top?.[1]?.confidence).toBeCloseTo(0.25, 5);
   });
 
   it('feeds a sign window as one [1, 30, 126] tensor', () => {

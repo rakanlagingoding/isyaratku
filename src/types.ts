@@ -11,6 +11,8 @@ export type FeatureVector = Float32Array; // 126 = 2 hands x 21 points x 3
 export type Prediction = {
   label: string; // gloss or letter
   confidence: number; // 0..1
+  /** Best 3 labels, highest first (real model only; shown in debug mode). */
+  top?: { label: string; confidence: number }[];
 };
 
 export type RecognitionMode = 'letters' | 'signs';

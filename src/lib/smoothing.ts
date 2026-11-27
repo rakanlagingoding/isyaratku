@@ -15,10 +15,10 @@ import type { HandFrame, Point3 } from '../types';
  * at 15 FPS jitter variance drops ~70% while lag stays ~0.02–0.03 units at
  * 0.75–2 units/s hand speed.
  */
-export const ONE_EURO_DEFAULTS = { minCutoff: 0.5, beta: 5, dCutoff: 0.5 } as const;
+export const ONE_EURO_DEFAULTS = { minCutoff: 1.0, beta: 5, dCutoff: 0.5 } as const;
 
 /** Time constant (ms) of the display tween. Lower = snappier, higher = smoother. */
-export const TWEEN_TAU_MS = 45;
+export const TWEEN_TAU_MS = 20;
 
 const smoothingFactor = (cutoffHz: number, dtSec: number) => {
   const tau = 1 / (2 * Math.PI * cutoffHz);

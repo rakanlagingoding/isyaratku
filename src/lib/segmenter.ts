@@ -184,6 +184,13 @@ export type WordSegmenterOptions = {
   stableCount?: number;
   /** No hand or `_IDLE` this long after a gloss ends the sentence (PRD F4: 1000 ms). */
   sentenceGapMs?: number;
+  /**
+   * Window frame rate. Must match `TARGET_FPS` in training/train_signs.ipynb: the model learned
+   * 30 frames ≈ 2 s per sign, so a 30 FPS camera would show it only half a sign (DECISIONS #37).
+   */
+  fps?: number;
+  /** A new gloss needs this long since the previous one: drops guesses made mid-transition. */
+  minGlossGapMs?: number;
 };
 
 export type WordSegmenterEvents = {
@@ -201,6 +208,8 @@ const WORD_DEFAULTS: Required<WordSegmenterOptions> = {
   stride: 2,
   stableCount: 3,
   sentenceGapMs: 1000,
+  fps: 15,
+  minGlossGapMs: 600,
 };
 
 // vocab.json: `_IDLE` is the last sign class (see `_signsSource`).
@@ -217,7 +226,9 @@ export class WordSegmenter extends Emitter<WordSegmenterEvents> implements Gloss
   private streak = 0;
   /** Last accepted gloss; the same sign needs an `_IDLE` prediction in between to repeat. */
   private lastGloss: string | null = null;
+  private lastGlossT = -Infinity;
   private lastActiveT = -Infinity; // last frame with a hand that is not `_IDLE`
+  private nextFrameDue = -Infinity; // time the next window frame is due (fps sampling)
   private sentence: string[] = [];
 
   constructor(predict: SignPredictor, opts: WordSegmenterOptions = {}) {
@@ -233,7 +244,9 @@ export class WordSegmenter extends Emitter<WordSegmenterEvents> implements Gloss
     this.streakLabel = null;
     this.streak = 0;
     this.lastGloss = null;
+    this.lastGlossT = -Infinity;
     this.lastActiveT = -Infinity;
+    this.nextFrameDue = -Infinity;
     this.sentence = [];
   }
 
@@ -246,17 +259,17 @@ export class WordSegmenter extends Emitter<WordSegmenterEvents> implements Gloss
 
   push(f: FeatureVector, t: number): void {
     const { window, stride } = this.opts;
-    this.frames.push(f);
-    if (this.frames.length > window) this.frames.shift();
-    this.framesSeen++;
-
-    if (hasHand(f)) {
+    const hand = hasHand(f);
+    if (this.takeWindowFrame(t)) {
+      this.frames.push(f);
+      if (this.frames.length > window) this.frames.shift();
+      this.framesSeen++;
       // Only frames with a hand are classified; a hand-less frame is a pause, handled by time.
-      if (this.frames.length === window && (this.framesSeen - window) % stride === 0) {
-        this.onPrediction(this.predict(this.frames));
+      if (hand && this.frames.length === window && (this.framesSeen - window) % stride === 0) {
+        this.onPrediction(this.predict(this.frames), t);
       }
-      if (this.lastLabel !== IDLE) this.lastActiveT = t;
     }
+    if (hand && this.lastLabel !== IDLE) this.lastActiveT = t;
 
     if (this.sentence.length > 0 && t - this.lastActiveT >= this.opts.sentenceGapMs) {
       const glosses = this.sentence;
@@ -267,8 +280,20 @@ export class WordSegmenter extends Emitter<WordSegmenterEvents> implements Gloss
     }
   }
 
-  private onPrediction(p: Prediction): void {
-    const { threshold, stableCount } = this.opts;
+  /**
+   * Sample camera frames down to `fps`. Half a period of slack keeps every 2nd frame of a 31 FPS
+   * camera (~15.5 fps) instead of every 3rd; a camera slower than `fps` keeps every frame.
+   */
+  private takeWindowFrame(t: number): boolean {
+    const period = 1000 / this.opts.fps;
+    if (t < this.nextFrameDue - period / 2) return false;
+    // After a stall (or the first frame), restart the schedule from now instead of catching up.
+    this.nextFrameDue = (t >= this.nextFrameDue + period ? t : this.nextFrameDue) + period;
+    return true;
+  }
+
+  private onPrediction(p: Prediction, t: number): void {
+    const { threshold, stableCount, minGlossGapMs } = this.opts;
     this.lastLabel = p.label;
     this.emit('sign', p);
     if (p.label === IDLE) {
@@ -282,8 +307,14 @@ export class WordSegmenter extends Emitter<WordSegmenterEvents> implements Gloss
     }
     this.streak = p.label === this.streakLabel ? this.streak + 1 : 1;
     this.streakLabel = p.label;
-    if (this.streak === stableCount && p.label !== this.lastGloss) {
+    // `>=`, not `===`: a sign that stays stable through the gap is accepted when the gap ends.
+    if (
+      this.streak >= stableCount &&
+      p.label !== this.lastGloss &&
+      t - this.lastGlossT >= minGlossGapMs
+    ) {
       this.lastGloss = p.label;
+      this.lastGlossT = t;
       this.sentence.push(p.label);
       this.emit('gloss', p.label);
     }

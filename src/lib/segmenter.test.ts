@@ -148,7 +148,8 @@ const predictWindow = (w: ReadonlyArray<FeatureVector>): Prediction => {
 
 function runWords(steps: Step[], dt = 50, seg?: WordSegmenter, startT = 0) {
   windows = [];
-  const s = seg ?? new WordSegmenter(predictWindow);
+  // fps 20 = one window frame per 50 ms step, so the counts below are frame counts.
+  const s = seg ?? new WordSegmenter(predictWindow, { fps: 20 });
   const glosses: string[] = [];
   const sentences: string[][] = [];
   const signs: string[] = [];
@@ -191,15 +192,17 @@ describe('WordSegmenter (signs)', () => {
     expect(runWords(steps).glosses).toEqual([]);
   });
 
-  it('accepts a different sign right after the previous one', () => {
-    const steps = [...frames('SAYA', 34), ...frames('MAKAN', 6)];
+  it('accepts a different sign once 600 ms have passed since the previous gloss', () => {
+    // SAYA accepted at t = 1650. MAKAN is stable from t = 1950 but waits until t >= 2250 (frame 46).
+    expect(runWords([...frames('SAYA', 34), ...frames('MAKAN', 11)]).glosses).toEqual(['SAYA']);
+    const steps = [...frames('SAYA', 34), ...frames('MAKAN', 12)];
     expect(runWords(steps).glosses).toEqual(['SAYA', 'MAKAN']);
   });
 
   it('repeats the same sign only after an _IDLE pause', () => {
     const noPause = [...frames('MAKAN', 34), ...frames('MINUM', 2), ...frames('MAKAN', 6)];
     expect(runWords(noPause).glosses).toEqual(['MAKAN']);
-    const withIdle = [...frames('MAKAN', 34), ...frames('_IDLE', 2), ...frames('MAKAN', 6)];
+    const withIdle = [...frames('MAKAN', 34), ...frames('_IDLE', 2), ...frames('MAKAN', 12)];
     expect(runWords(withIdle).glosses).toEqual(['MAKAN', 'MAKAN']);
   });
 
@@ -213,7 +216,7 @@ describe('WordSegmenter (signs)', () => {
 
   it('ends the sentence after 1000 ms without a hand', () => {
     // 50 ms per frame: 20 no-hand frames reach 1000 ms after the last hand frame only at the 20th.
-    const r = runWords([...frames('SAYA', 34), ...frames('MAKAN', 6), ...noHand(20)]);
+    const r = runWords([...frames('SAYA', 34), ...frames('MAKAN', 12), ...noHand(20)]);
     expect(r.sentences).toEqual([['SAYA', 'MAKAN']]);
     expect(runWords([...frames('SAYA', 34), ...noHand(19)]).sentences).toEqual([]);
   });
@@ -237,6 +240,27 @@ describe('WordSegmenter (signs)', () => {
     first.s.resume(['SAYA'], 10_000);
     const r = runWords([...frames('MAKAN', 34), ...noHand(20)], 50, first.s, 10_000);
     expect(r.sentences).toEqual([['SAYA', 'MAKAN']]);
+  });
+
+  it('samples the window at 15 fps by default, like the training data', () => {
+    // A 31 FPS camera (32 ms per frame): 30 window frames must span ~2 s, as in training,
+    // so the first prediction comes ~1.93 s in (29 periods of 66.7 ms), not after 30 frames (~1 s).
+    let firstAt = -1;
+    let t = 0;
+    const seg = new WordSegmenter(() => ({ label: '_IDLE', confidence: 1 }));
+    seg.on('sign', () => (firstAt = t));
+    for (; t < 3000 && firstAt < 0; t += 32) {
+      const f = new Float32Array(FEATURE_LENGTH);
+      f[0] = 1;
+      seg.push(f, t);
+    }
+    expect(firstAt).toBeGreaterThanOrEqual(1900);
+    expect(firstAt).toBeLessThanOrEqual(2000);
+  });
+
+  it('keeps every frame when the camera is slower than 15 fps', () => {
+    const seg = new WordSegmenter(predictWindow);
+    expect(runWords(frames('_IDLE', 30), 100, seg).windows).toEqual([30]);
   });
 
   it('reset drops the buffered frames and the open sentence', () => {

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { translateRuleBased } from '../lib/translator/ruleBased';
 import type { SentenceFace } from '../lib/emotion';
-import type { Emotion, RecognitionMode } from '../types';
+import type { Emotion, Prediction, RecognitionMode } from '../types';
 
 // Live state of the Translate page (not persisted).
-type ActiveLetter = { label: string; confidence: number };
+type ActiveLetter = Prediction;
 
 /** The 4 stages shown in StageBar (PRD F7). */
 export type Stage = 'tangan' | 'ekspresi' | 'interpretasi' | 'suara';
