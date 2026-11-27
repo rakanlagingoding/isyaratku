@@ -2,8 +2,8 @@
 
 Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi tanggal, catat bug.
 
-**Fase aktif:** Fase 3 (kode selesai; menunggu uji eja + install di HP lewat tunnel)
-**Terakhir diperbarui:** 2026-11-22 (kit PRD v1.2 digabung dengan hasil Fase 1–2; data kata = WL-BISINDO, DECISIONS #21–#22)
+**Fase aktif:** Fase 7 (ekspresi, suara, 4 tahap, percakapan). Utang uji HP Fase 1–3 dan 5 masih terbuka.
+**Terakhir diperbarui:** 2026-11-27 (F6 suara Azure `/api/tts`, DECISIONS #41)
 
 ## Fase 1 — Fondasi (23–29 Nov 2026)
 
@@ -42,7 +42,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Fase 5 — Model kata (21–27 Des)
 
-- [ ] Latih dan ekspor model `signs` (cek nama bobot GRU, DECISIONS #23)
+- [x] Latih dan ekspor model `signs` (2026-11-27; dikerjakan di Fase 4, model di `public/models/signs/`)
 - [x] F4: segmenter mode kata `WordSegmenter` (window 30, prediksi tiap 2 frame, 3 prediksi stabil, ulang hanya setelah `_IDLE`, akhir kalimat 1000 ms) + 14 unit test; toggle Kata di Terjemah aktif hanya jika model `signs` termuat (2026-11-27)
 
 ## Fase 6 — Mesin penerjemah (28 Des–3 Jan)
@@ -56,8 +56,8 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 - [ ] **Ditunda — segera hadir (DECISIONS #39):** ekspresi wajah dimatikan (`emotion.json` `enabled: false`); kode di bawah tetap ada
 - [x] F13: `emotion.ts` (`toEmotion` + `FaceTracker` ringkasan kalimat) + 10 unit test blendshapes sintetis; FaceLandmarker di worker tangan tiap 3 frame (tanpa `face.ts` terpisah, DECISIONS #36); tahap Ekspresi menampilkan emosi live (2026-11-27). Belum diuji di HP: FPS ≥ 15 tangan + wajah, deteksi ≤ 0,5 dtk. Kalibrasi wajah netral → F11
 - [x] Emosi ke translator Mode A: R9 (alis naik → `?`) lewat `takeSentence(face)`; emosi kalimat → nada suara `speak` (2026-11-27)
-- [ ] Emosi + isQuestion di prompt Mode B
-- [ ] F6: `api/tts.ts` Azure SSML + fallback Web Speech
+- [x] Emosi + isQuestion di prompt Mode B (2026-11-27; `buildGeminiRequest` di `src/lib/translator/llm.ts`)
+- [x] F6: `api/tts.ts` Azure SSML + prosody per emosi + fallback Web Speech (offline, gagal, timeout 3 dtk, `play()` ditolak; 503 = lewati Azure sesi itu) (2026-11-27, DECISIONS #41). Tanpa key: suara tetap via Web Speech. Belum diuji dengan key asli / di HP
 - [x] F7: `StageBar` 4 tahap + layout Terjemah (2026-11-26; tahap aktif: warna + ● + `aria-current`, ketuk = detail; Ekspresi belum aktif sampai F13; dicek 360 px)
 - [ ] F7: `EmotionBadge`, `TranslationText` (garis bawah kata tambahan)
 - [ ] F8 Percakapan, F11 Pengaturan (termasuk kalibrasi wajah netral)

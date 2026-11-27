@@ -7,6 +7,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { readFileSync } from 'node:fs';
 import { modelRuntimeCaching } from './src/lib/pwaCache';
 import { createTranslateHandler } from './api/translate';
+import { createTtsHandler } from './api/tts';
 
 // HTTPS in dev is needed so a phone on the same network can open the camera.
 // Set VITE_NO_SSL=1 to run plain HTTP (e.g. localhost-only testing).
@@ -54,33 +55,41 @@ const pwa = VitePWA({
 });
 
 /**
- * Serve api/translate.ts inside `vite dev` and `vite preview` (Vite does not run the api/ folder;
- * DECISIONS #18, #40). Reads only LLM_* variables from .env; they never reach the client bundle,
- * which only sees VITE_* variables.
+ * Serve api/translate.ts and api/tts.ts inside `vite dev` and `vite preview` (Vite does not run the
+ * api/ folder; DECISIONS #18, #40). Reads only LLM_* and AZURE_* variables from .env; they never
+ * reach the client bundle, which only sees VITE_* variables.
  */
 function apiPlugin(mode: string): Plugin {
-  const handle = createTranslateHandler({ env: loadEnv(mode, process.cwd(), 'LLM_') });
-  const mount = (middlewares: Connect.Server) =>
-    middlewares.use('/api/translate', (req, res) => {
-      const chunks: Buffer[] = [];
-      req.on('data', (chunk: Buffer) => chunks.push(chunk));
-      req.on('end', () => {
-        const ip = req.headers['cf-connecting-ip'] ?? req.socket.remoteAddress ?? 'local';
-        const request = new Request('http://localhost/api/translate', {
-          method: req.method,
-          headers: {
-            'content-type': req.headers['content-type'] ?? 'application/json',
-            'x-forwarded-for': String(ip),
-          },
-          body: req.method === 'POST' ? Buffer.concat(chunks) : undefined,
-        });
-        void handle(request).then(async (response) => {
-          res.statusCode = response.status;
-          response.headers.forEach((value, key) => res.setHeader(key, value));
-          res.end(await response.text());
+  const env = loadEnv(mode, process.cwd(), ['LLM_', 'AZURE_']);
+  const routes: Record<string, (request: Request) => Promise<Response>> = {
+    '/api/translate': createTranslateHandler({ env }),
+    '/api/tts': createTtsHandler({ env }),
+  };
+  const mount = (middlewares: Connect.Server) => {
+    for (const [path, handle] of Object.entries(routes)) {
+      middlewares.use(path, (req, res) => {
+        const chunks: Buffer[] = [];
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', () => {
+          const ip = req.headers['cf-connecting-ip'] ?? req.socket.remoteAddress ?? 'local';
+          const request = new Request(`http://localhost${path}`, {
+            method: req.method,
+            headers: {
+              'content-type': req.headers['content-type'] ?? 'application/json',
+              'x-forwarded-for': String(ip),
+            },
+            body: req.method === 'POST' ? Buffer.concat(chunks) : undefined,
+          });
+          void handle(request).then(async (response) => {
+            res.statusCode = response.status;
+            response.headers.forEach((value, key) => res.setHeader(key, value));
+            // Binary-safe: /api/tts answers MP3.
+            res.end(Buffer.from(await response.arrayBuffer()));
+          });
         });
       });
-    });
+    }
+  };
   return {
     name: 'isyaratku-api',
     configureServer: (server) => void mount(server.middlewares),

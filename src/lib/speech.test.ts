@@ -127,3 +127,122 @@ describe('unlockSpeech', () => {
     expect(() => unlockSpeech({})).not.toThrow();
   });
 });
+
+describe('speak with Azure', () => {
+  function azureEnv(fetchImpl: () => Promise<Response>, online = true) {
+    const base = fakeEnv([{ lang: 'id-ID', name: 'id' }]);
+    const audio = {
+      src: '',
+      play: vi.fn(() => Promise.resolve()),
+      pause: vi.fn(),
+      onended: null as null | (() => void),
+      onerror: null as null | (() => void),
+    };
+    const objectUrl = { create: vi.fn(() => 'blob:1'), revoke: vi.fn() };
+    const fetchSpy = vi.fn(fetchImpl);
+    const env = {
+      ...base.env,
+      fetchImpl: fetchSpy,
+      audio,
+      objectUrl,
+      online: () => online,
+      state: { azureOff: false },
+    } as unknown as SpeechEnv; // fakes implement only what speech.ts uses
+    return { ...base, env, audio, objectUrl, fetchSpy };
+  }
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+  const mp3 = () => Promise.resolve(new Response(new Blob([new Uint8Array([1])])));
+
+  it('plays the Azure MP3 and sends only text, emotion and voice', async () => {
+    const { env, audio, synth, fetchSpy, objectUrl } = azureEnv(mp3);
+    let ended = 0;
+    expect(speak('Halo', { emotion: 'senang', onEnd: () => ended++ }, env)).toBe(true);
+    await flush();
+    expect(audio.src).toBe('blob:1');
+    expect(audio.play).toHaveBeenCalled();
+    expect(synth.speak).not.toHaveBeenCalled();
+    const [url, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/tts');
+    expect(JSON.parse(init.body as string)).toEqual({ text: 'Halo', emotion: 'senang' });
+    audio.onended?.();
+    expect(ended).toBe(1);
+    expect(objectUrl.revoke).toHaveBeenCalledWith('blob:1');
+  });
+
+  it('falls back to Web Speech when /api/tts fails', async () => {
+    const { env, spoken } = azureEnv(() => Promise.resolve(new Response('x', { status: 502 })));
+    speak('Halo', { emotion: 'sedih' }, env);
+    await flush();
+    expect(spoken[0]?.text).toBe('Halo');
+    expect(spoken[0]?.pitch).toBeCloseTo(0.92);
+  });
+
+  it('falls back to Web Speech after the 3 s timeout', async () => {
+    vi.useFakeTimers();
+    try {
+      // Like a real fetch: never answers, rejects when its signal aborts.
+      const hanging = (_url: string, init: RequestInit) =>
+        new Promise<Response>((_, reject) =>
+          init.signal?.addEventListener('abort', () => reject(new Error('aborted'))),
+        );
+      const { env, spoken } = azureEnv(hanging as unknown as () => Promise<Response>);
+      speak('Halo', {}, env);
+      await vi.advanceTimersByTimeAsync(2999);
+      expect(spoken).toHaveLength(0);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(spoken[0]?.text).toBe('Halo');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('falls back when play() is blocked (no unlock on iOS)', async () => {
+    const { env, audio, spoken } = azureEnv(mp3);
+    audio.play.mockImplementation(() => Promise.reject(new Error('NotAllowedError')));
+    speak('Halo', {}, env);
+    await flush();
+    expect(spoken[0]?.text).toBe('Halo');
+  });
+
+  it('skips Azure for the session after a 503 (no key on the server)', async () => {
+    const { env, fetchSpy, spoken } = azureEnv(() =>
+      Promise.resolve(new Response('x', { status: 503 })),
+    );
+    speak('Satu', {}, env);
+    await flush();
+    speak('Dua', {}, env);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(spoken.map((u) => u.text)).toEqual(['Satu', 'Dua']);
+  });
+
+  it('uses Web Speech directly when offline or when asked to', () => {
+    const offline = azureEnv(mp3, false);
+    speak('Halo', {}, offline.env);
+    expect(offline.fetchSpy).not.toHaveBeenCalled();
+    expect(offline.spoken).toHaveLength(1);
+    const forced = azureEnv(mp3);
+    speak('Halo', { provider: 'webspeech' }, forced.env);
+    expect(forced.fetchSpy).not.toHaveBeenCalled();
+    expect(forced.spoken).toHaveLength(1);
+  });
+
+  it('a newer sentence or stopSpeaking cancels the pending one without a fallback', async () => {
+    const { env, audio, spoken } = azureEnv(
+      () => new Promise((_, reject) => setTimeout(() => reject(new Error('aborted')), 0)),
+    );
+    let ended = 0;
+    speak('Lama', { onEnd: () => ended++ }, env);
+    stopSpeaking(env);
+    await flush();
+    expect(spoken).toHaveLength(0);
+    expect(ended).toBe(0);
+    expect(audio.pause).toHaveBeenCalled();
+  });
+
+  it('unlockSpeech also primes the shared audio element', () => {
+    const { env, audio } = azureEnv(mp3);
+    unlockSpeech(env);
+    expect(audio.src).toMatch(/^data:audio\/wav/);
+    expect(audio.play).toHaveBeenCalled();
+  });
+});

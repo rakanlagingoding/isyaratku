@@ -300,3 +300,19 @@ terpicu) dan suara bernada netral. Kode F13 (`emotion.ts` + tes, worker, store) 
   `endTranslation` menampilkan hasil. Pilihan Mode A/B di Pengaturan (`settingsStore.translator`, default Mode A).
 - **Evaluasi:** `npm run eval` memanggil Gemini untuk 72 pasangan (jeda `LLM_EVAL_DELAY_MS`, coba ulang 3×). Satu
   pasangan gagal → skor Mode B dikosongkan untuk semua subset (A dan B harus dinilai pada kalimat yang sama).
+
+### #41 — 2026-11-27 — Suara Azure lewat `/api/tts` (REST, tanpa SDK)
+- **Server (`api/tts.ts`):** REST `POST https://{region}.tts.speech.microsoft.com/cognitiveservices/v1` dengan SSML,
+  output `audio-24khz-48kbitrate-mono-mp3`. Tanpa SDK Azure, jadi **tanpa dependency baru**. Pitch/rate per emosi dari
+  `prosody.json`. Teks di-escape XML (tidak bisa menyisipkan tag SSML). Input dibatasi: `text` ≤ 300 karakter,
+  `emotion` dari `prosody.json`, `voice` hanya dari `azureVoices` (default `AZURE_TTS_VOICE`). Timeout 3 dtk, rate
+  limit 30/menit per IP (limiter dipindah ke `api/_rateLimit.ts`, dipakai bersama `/api/translate`).
+- **Klien (`speech.ts`):** `speak()` tetap sinkron dan signature-nya sama. Azure dipakai bila online. Web Speech dipakai
+  bila HTTP gagal, timeout 3 dtk, atau `play()` ditolak. **503 (key kosong) → Azure dilewati sampai halaman dimuat
+  ulang**, agar tanpa key tidak ada request sia-sia tiap kalimat. Ucapan yang dibatalkan (kalimat baru / Hapus) tidak
+  memicu fallback dan tidak memanggil `onEnd`.
+- **iOS:** satu elemen `Audio` dipakai bersama. `unlockSpeech()` (dipanggil saat "Mulai") memutar WAV senyap 1 sampel
+  di elemen itu, supaya `play()` dari loop kamera tidak diblokir.
+- **Dev:** plugin di `vite.config.ts` kini memasang `/api/translate` dan `/api/tts`, membaca `LLM_*` dan `AZURE_*`, dan
+  menulis body sebagai biner (sebelumnya `.text()`, yang merusak MP3).
+- **Belum:** pilihan suara/provider di Pengaturan (F11), cache audio.
