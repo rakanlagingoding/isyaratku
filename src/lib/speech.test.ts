@@ -4,6 +4,7 @@ import {
   pickVoice,
   prosodyFor,
   speak,
+  unlockSpeech,
   stopSpeaking,
   type SpeechEnv,
 } from './speech';
@@ -13,6 +14,7 @@ class FakeUtterance {
   lang = '';
   pitch = 1;
   rate = 1;
+  volume = 1;
   voice: unknown = null;
   constructor(text: string) {
     this.text = text;
@@ -110,5 +112,18 @@ describe('stopSpeaking', () => {
     const { env, synth } = fakeEnv();
     stopSpeaking(env);
     expect(synth.cancel).toHaveBeenCalled();
+  });
+});
+
+describe('unlockSpeech', () => {
+  it('speaks a silent utterance (iOS only allows speech after one started from a tap)', () => {
+    const { env, spoken } = fakeEnv();
+    unlockSpeech(env);
+    expect(spoken).toHaveLength(1);
+    expect(spoken[0]?.volume).toBe(0);
+  });
+
+  it('does nothing without speech support', () => {
+    expect(() => unlockSpeech({})).not.toThrow();
   });
 });

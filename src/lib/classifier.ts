@@ -5,6 +5,7 @@
 import vocab from '../data/vocab.json';
 import type { FeatureVector, Prediction, RecognitionMode } from '../types';
 import { FEATURE_LENGTH } from './features';
+import { loadNativeModel } from './nativeModel';
 
 export const MODEL_URLS: Record<RecognitionMode, string> = {
   letters: '/models/letters/model.json',
@@ -141,9 +142,18 @@ export async function modelExists(url: string, fetchImpl: FetchLike = fetch): Pr
   }
 }
 
+/**
+ * Plain-TypeScript runner first (DECISIONS #38: ~4 ms vs ~600 ms for the GRU); TF.js, imported
+ * lazily, only for a model with layers the native runner does not support.
+ */
 const defaultLoader: ModelLoader = async (url) => {
-  const { loadTfModel } = await import('./tfModel');
-  return loadTfModel(url);
+  try {
+    return await loadNativeModel(url);
+  } catch (err) {
+    console.warn(`Native runner cannot load ${url}; using TF.js`, err);
+    const { loadTfModel } = await import('./tfModel');
+    return loadTfModel(url);
+  }
 };
 
 /** Load both models; each one that is missing or fails to load falls back to mock mode. */

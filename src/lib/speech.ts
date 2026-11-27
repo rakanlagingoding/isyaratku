@@ -66,3 +66,15 @@ export function speak(
 export function stopSpeaking(env: SpeechEnv = browserEnv()): void {
   env.synth?.cancel();
 }
+
+/**
+ * Call from a tap handler (e.g. "Mulai"). iOS Safari blocks speechSynthesis until one utterance
+ * was started by a user gesture; the sentence-end speech comes from the camera loop, not a tap.
+ */
+export function unlockSpeech(env: SpeechEnv = browserEnv()): void {
+  const { synth, Utterance } = env;
+  if (!synth || !Utterance) return;
+  const silent = new Utterance(' ');
+  silent.volume = 0;
+  synth.speak(silent);
+}

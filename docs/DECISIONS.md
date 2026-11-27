@@ -262,3 +262,15 @@ Uji HP pertama (iPhone, 31 FPS deteksi): chip lambat muncul dan salah kata ("Say
 - **Garis tangan tertinggal:** One Euro `minCutoff` 0,5 → 1,0 dan tween τ 45 → 20 ms (#14 disetel untuk 10–15 FPS).
   Fitur ke segmenter ikut sedikit kurang halus; mode abjad perlu dicek ulang di HP.
 - Ditunda: latih ulang kelas lemah (BERANGKAT 0,00; AIR, HIJAU, BAGAIMANA).
+
+### #38 — 2026-11-27 — Model dijalankan tanpa TF.js (`nativeModel.ts`); suara dibuka saat "Mulai"
+- **Masalah:** uji HP kedua — deteksi tetap terasa sangat lag di mode Kata. Diukur: model kata (GRU 30×126) di TF.js
+  backend CPU **621 ms** per prediksi (huruf 0,3 ms). TF.js memecah GRU 30 langkah jadi ratusan op kecil + `dataSync()`
+  di main thread, ±7× per detik → layar dan garis tangan tersendat. WebGL di HP tidak bisa diukur dari laptop.
+- **Keputusan:** `src/lib/nativeModel.ts` menghitung InputLayer, Dense, Dropout, GRU (`reset_after=False`) langsung
+  dengan `Float32Array`, membaca `model.json` + bobot yang sama. Diukur: **4,2 ms** (kata), 0,05 ms (huruf). Tes
+  membandingkan output dengan TF.js pada kedua model asli (selisih < 1e-4). Lapisan lain → error → classifier memakai
+  TF.js (lazy) sebagai cadangan, jadi bundel TF.js tidak diunduh untuk model sekarang. Tanpa dependency baru.
+- **Suara tidak keluar otomatis (iOS):** Safari/WebKit memblokir `speechSynthesis` sampai satu ucapan dimulai dari
+  ketukan; ucapan akhir kalimat berasal dari loop kamera. `unlockSpeech()` mengucapkan spasi bervolume 0 di handler
+  tombol "Mulai".

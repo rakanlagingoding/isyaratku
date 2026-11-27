@@ -83,6 +83,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Bug dan catatan
 
+- 2026-11-27 (uji HP kedua): masih sangat lag + suara hanya keluar lewat "Ucapkan ulang". Penyebab: GRU di TF.js 621 ms/prediksi di main thread; iOS memblokir suara yang tidak dipicu ketukan. Diperbaiki (DECISIONS #38): runner TypeScript 4,2 ms; `unlockSpeech()` saat Mulai. Perlu uji ulang di HP.
 - 2026-11-27 (uji HP pertama, mode kata): chip lambat + salah kata; garis tangan tertinggal. Diperbaiki (DECISIONS #37): window disampel 15 fps (sebelumnya 31 FPS = setengah isyarat), jeda antar gloss 600 ms, top-3 di Mode debug, penghalusan lebih ringan. Perlu uji ulang di HP, termasuk mode abjad.
 - 2026-11-27 (model kata): BERANGKAT tidak pernah benar di uji (recall 0, 7 dari 10 diprediksi CARI). Di kamera, BERANGKAT kemungkinan besar muncul sebagai CARI. Opsi: cek video WL-BISINDO kedua kata, tambah data, atau gabungkan bobot kelas. Belum diuji di HP.
 - 2026-11-26 (uji HP): halaman Terjemah terasa terlalu penuh setelah StageBar ditambah (StageBar + teks hasil + toggle + 3 tombol + menu bawah). Ditunda pemilik; rapikan saat Fase 7 (mis. gabung toggle/tombol, StageBar lebih ringkas).

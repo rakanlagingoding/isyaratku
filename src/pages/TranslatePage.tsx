@@ -8,7 +8,7 @@ import { loadModels, type Classifier } from '../lib/classifier';
 import { toFeatures } from '../lib/features';
 import { fingerspellToWord, Segmenter, WordSegmenter, type GlossSegmenter } from '../lib/segmenter';
 import { FaceTracker, toEmotion, type Blendshapes } from '../lib/emotion';
-import { isSpeechSupported, speak, stopSpeaking } from '../lib/speech';
+import { isSpeechSupported, speak, stopSpeaking, unlockSpeech } from '../lib/speech';
 import { currentStage, useSessionStore, type Stage } from '../store/sessionStore';
 import { useSettingsStore } from '../store/settingsStore';
 import type { Emotion, HandFrame } from '../types';
@@ -114,6 +114,7 @@ export default function TranslatePage() {
     } else {
       // Chips made before the pause stay part of the sentence and are spoken at its end.
       segmenterRef.current?.resume(useSessionStore.getState().glosses, performance.now());
+      unlockSpeech(); // inside the tap: lets the sentence-end speech play on iOS
       start();
     }
   };
