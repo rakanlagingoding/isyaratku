@@ -303,3 +303,35 @@ describe('notebook export format (GRU)', () => {
     model.dispose();
   });
 });
+
+describe('committed models', () => {
+  // The real files in public/models/: catches a broken Colab export before it reaches the phone.
+  it.each([
+    ['signs', [1, 30, 126]],
+    ['letters', [1, 126]],
+  ] as const)('%s model loads and outputs one probability per vocab label', async (kind, shape) => {
+    const { readFileSync } = await import('node:fs');
+    const vocab = (await import('../data/vocab.json')).default;
+    const dir = `public/models/${kind}`;
+    const json = JSON.parse(readFileSync(`${dir}/model.json`, 'utf-8')) as {
+      modelTopology: object;
+      weightsManifest: { paths: string[]; weights: tf.io.WeightsManifestEntry[] }[];
+    };
+    const group = json.weightsManifest[0];
+    if (!group) throw new Error('model.json has no weights');
+    const bin = readFileSync(`${dir}/${group.paths[0]}`);
+    const runner = wrapLayersModel(
+      await tf.loadLayersModel(
+        tf.io.fromMemory({
+          modelTopology: json.modelTopology,
+          weightSpecs: group.weights,
+          weightData: bin.buffer.slice(bin.byteOffset, bin.byteOffset + bin.byteLength),
+        }),
+      ),
+    );
+    expect(runner.outputSize).toBe(vocab[kind].length);
+    const out = runner.run(new Float32Array(shape.reduce<number>((a, b) => a * b, 1)), [...shape]);
+    expect(out.reduce((a, b) => a + b, 0)).toBeCloseTo(1, 4); // softmax
+    runner.dispose();
+  });
+});

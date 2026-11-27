@@ -38,7 +38,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 - [ ] Unduh WL-BISINDO (Kaggle, 2,16 GB), konversi video → landmark (resample ke laju deteksi aplikasi, `_IDLE` dari awal/akhir video; DECISIONS #22) — dikerjakan otomatis oleh `train_signs.ipynb`
 - [ ] Unduh Mendeley `yzhzkzbnmw` (±258 MB), ambil blok tangan kolom 107–148, taksir `aspect` (±16/9), normalisasi ulang (DECISIONS #29) — dikerjakan otomatis oleh `train_signs.ipynb`
 - [x] Notebook `train_signs.ipynb` + augmentasi + time-warp, uji signer-independent (2026-11-26; DECISIONS #31; bagian NumPy dites pada sampel Mendeley asli, belum dijalankan di Colab)
-- [ ] Jalankan `train_signs.ipynb` di Colab, catat akurasi + macro-F1, salin model ke `public/models/signs/`
+- [x] Jalankan `train_signs.ipynb` di Colab, salin model ke `public/models/signs/` (2026-11-27; GRU 30×126 → 64 kelas; uji 1009 sampel: **akurasi 92,7%, macro-F1 0,896**; `_IDLE` 1,00. Terlemah: BERANGKAT 0,00 (7/10 jadi CARI), AIR 0,50 (↔ MALAM), CARI 0,60, APA 0,62 (BAGAIMANA → APA 5/19), HIJAU 0,62 (↔ HITAM). Mendeley diunduh manual: API 403 → zip lewat Google Drive)
 
 ## Fase 5 — Model kata (21–27 Des)
 
@@ -83,6 +83,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Bug dan catatan
 
+- 2026-11-27 (model kata): BERANGKAT tidak pernah benar di uji (recall 0, 7 dari 10 diprediksi CARI). Di kamera, BERANGKAT kemungkinan besar muncul sebagai CARI. Opsi: cek video WL-BISINDO kedua kata, tambah data, atau gabungkan bobot kelas. Belum diuji di HP.
 - 2026-11-26 (uji HP): halaman Terjemah terasa terlalu penuh setelah StageBar ditambah (StageBar + teks hasil + toggle + 3 tombol + menu bawah). Ditunda pemilik; rapikan saat Fase 7 (mis. gabung toggle/tombol, StageBar lebih ringkas).
 
 - 2026-11-23 (Fase 3): dependency baru `vite-plugin-pwa` (dev); `cloudflared` 2026.11.1 dipasang lewat winget. 105 tes lolos. Belum diverifikasi di HP: suara `id-ID` di HP, install PWA, akurasi eja realtime.
