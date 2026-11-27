@@ -9,6 +9,7 @@ import {
   validateTranslateInput,
   type TranslateInput,
 } from '../src/lib/translator/llm';
+import { clientIp, createRateLimiter } from './_rateLimit';
 
 type Env = Record<string, string | undefined>;
 
@@ -30,25 +31,12 @@ const json = (body: unknown, status = 200) =>
   });
 
 export function createTranslateHandler({ env, fetchImpl = fetch, now = Date.now }: TranslateDeps) {
-  // shortcut: per-process memory, so each server instance counts separately; fine for a class demo,
-  // use a shared store (e.g. Vercel KV) if the app gets real traffic.
-  const hits = new Map<string, { start: number; count: number }>();
-
-  const limited = (ip: string): boolean => {
-    const t = now();
-    const entry = hits.get(ip);
-    if (!entry || t - entry.start > RATE_WINDOW_MS) {
-      hits.set(ip, { start: t, count: 1 });
-      return false;
-    }
-    entry.count++;
-    return entry.count > RATE_LIMIT;
-  };
+  const limited = createRateLimiter(RATE_LIMIT, RATE_WINDOW_MS, now);
 
   return async function handle(request: Request): Promise<Response> {
     if (request.method !== 'POST') return json({ error: 'Gunakan POST' }, 405);
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
-    if (limited(ip)) return json({ error: 'Terlalu banyak permintaan, coba lagi sebentar' }, 429);
+    if (limited(clientIp(request)))
+      return json({ error: 'Terlalu banyak permintaan, coba lagi sebentar' }, 429);
 
     let input;
     try {
