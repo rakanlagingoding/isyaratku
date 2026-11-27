@@ -53,6 +53,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 
 ## Fase 7 — Ekspresi, suara, 4 tahap, percakapan (4–10 Jan)
 
+- [ ] **Ditunda — segera hadir (DECISIONS #39):** ekspresi wajah dimatikan (`emotion.json` `enabled: false`); kode di bawah tetap ada
 - [x] F13: `emotion.ts` (`toEmotion` + `FaceTracker` ringkasan kalimat) + 10 unit test blendshapes sintetis; FaceLandmarker di worker tangan tiap 3 frame (tanpa `face.ts` terpisah, DECISIONS #36); tahap Ekspresi menampilkan emosi live (2026-11-27). Belum diuji di HP: FPS ≥ 15 tangan + wajah, deteksi ≤ 0,5 dtk. Kalibrasi wajah netral → F11
 - [x] Emosi ke translator Mode A: R9 (alis naik → `?`) lewat `takeSentence(face)`; emosi kalimat → nada suara `speak` (2026-11-27)
 - [ ] Emosi + isQuestion di prompt Mode B

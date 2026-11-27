@@ -8,13 +8,18 @@ const STAGES: ReadonlyArray<{ id: Stage; label: string }> = [
   { id: 'suara', label: 'Suara' },
 ];
 
-type Props = { current: Stage | null; renderDetail: (stage: Stage) => ReactNode };
+type Props = {
+  current: Stage | null;
+  renderDetail: (stage: Stage) => ReactNode;
+  /** Stages not available yet: shown muted with "Segera" (coming soon). */
+  comingSoon?: ReadonlyArray<Stage>;
+};
 
 /**
  * PRD F7: the 4 pipeline stages under the camera. The running stage is highlighted (color + dot +
  * aria-current); tapping a stage opens its detail below the bar.
  */
-export default function StageBar({ current, renderDetail }: Props) {
+export default function StageBar({ current, renderDetail, comingSoon = [] }: Props) {
   const [open, setOpen] = useState<Stage | null>(null);
   return (
     <nav aria-label="Tahap penerjemahan">
@@ -40,6 +45,11 @@ export default function StageBar({ current, renderDetail }: Props) {
                   {i + 1}
                 </span>
                 {label}
+                {comingSoon.includes(id) && (
+                  <span className="text-[0.625rem] leading-none font-normal text-amber-300">
+                    Segera
+                  </span>
+                )}
               </button>
             </li>
           );

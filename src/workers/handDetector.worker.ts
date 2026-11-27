@@ -118,7 +118,7 @@ async function init(preferred: Delegate | null): Promise<void> {
       return;
     }
     landmarker = active;
-    void loadFace(fileset, delegate);
+    if (emotionConfig.enabled) void loadFace(fileset, delegate); // off = coming soon (DECISIONS #39)
     const now = performance.now();
     const timings = {
       downloadMs: t1 - t0,

@@ -274,3 +274,10 @@ Uji HP pertama (iPhone, 31 FPS deteksi): chip lambat muncul dan salah kata ("Say
 - **Suara tidak keluar otomatis (iOS):** Safari/WebKit memblokir `speechSynthesis` sampai satu ucapan dimulai dari
   ketukan; ucapan akhir kalimat berasal dari loop kamera. `unlockSpeech()` mengucapkan spasi bervolume 0 di handler
   tombol "Mulai".
+
+### #39 — 2026-11-27 — Ekspresi wajah ditunda ("segera hadir")
+Diputuskan pemilik. `emotion.json` → `"enabled": false`: worker tidak mengunduh/menjalankan FaceLandmarker (hemat ±3,7 MB
+dan beban tiap 3 frame di HP), tahap Ekspresi di StageBar bertanda "Segera" dan detailnya "Segera hadir". Tanpa wajah,
+`FaceTracker` memberi `netral` + `isQuestion: false`, jadi kalimat tanya tanpa kata tanya tidak mendapat `?` (R9 tidak
+terpicu) dan suara bernada netral. Kode F13 (`emotion.ts` + tes, worker, store) tetap ada; menyalakan lagi cukup
+`"enabled": true`. Tugas `EmotionBadge` (Gilang) dan skenario uji alis naik (Radja) ikut ditunda.
