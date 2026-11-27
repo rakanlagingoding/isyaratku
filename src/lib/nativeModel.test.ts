@@ -41,7 +41,8 @@ describe('buildNativeModel', () => {
     }
     expect(native.outputSize).toBe(json.weightsManifest[0]?.weights.at(-1)?.shape[0]);
     reference.dispose();
-  });
+    // TF.js reference needs ~0.6 s per GRU prediction; the default 5 s is too tight in a parallel run.
+  }, 30_000);
 
   it('rejects layers it cannot run, so the caller falls back to TF.js', () => {
     const { json, weights } = readModel('letters');

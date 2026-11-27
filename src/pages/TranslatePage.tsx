@@ -17,7 +17,8 @@ import emotionConfig from '../data/emotion.json';
 
 const THRESHOLD = 0.8; // PRD F4 default; adjustable in F11 (Phase 7)
 const IDLE = vocab.signs.at(-1);
-const EMOTION_LABELS = emotionConfig.labels as Record<Emotion, string>; // vocab.json: `_IDLE` is the last sign class
+const EMOTION_LABELS = emotionConfig.labels as Record<Emotion, string>;
+const FACE_ENABLED = emotionConfig.enabled; // vocab.json: `_IDLE` is the last sign class
 
 // F7: letters (fingerspelling) or words (signs) -> chips -> Mode A sentence -> voice, shown as the
 // 4-stage StageBar. The face (F13) makes the sentence a question (R9) and sets the voice tone.
@@ -139,6 +140,7 @@ export default function TranslatePage() {
             }`
           : 'Tangan belum terlihat.';
       case 'ekspresi':
+        if (!FACE_ENABLED) return 'Segera hadir: deteksi ekspresi wajah (emosi dan kalimat tanya).';
         if (!running) {
           return sentence
             ? `Kalimat terakhir: ${EMOTION_LABELS[sentenceFace.emotion]}${
@@ -191,6 +193,7 @@ export default function TranslatePage() {
         <StageBar
           current={currentStage({ running, speaking, wordBuffer, glosses })}
           renderDetail={stageDetail}
+          comingSoon={FACE_ENABLED ? [] : ['ekspresi']}
         />
         <CaptionBar text={sentence} spelling={wordBuffer} />
         {!speechOk && <p className="text-sm text-amber-300">Suara tidak didukung browser ini.</p>}

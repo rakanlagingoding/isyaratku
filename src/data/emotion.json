@@ -41,6 +41,8 @@
     "questionWindowMs": 1000,
     "questionMinShare": 0.3
   },
+  "enabled": false,
+  "_enabledNote": "false = fitur ekspresi wajah ditunda (segera hadir, DECISIONS #39): model wajah tidak diunduh/dijalankan.",
   "runEveryNFrames": 3,
   "labels": {
     "netral": "Netral",
