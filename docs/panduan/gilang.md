@@ -76,8 +76,10 @@ Branch: `gilang/emotion-badge` · Acuan: PRD F7 ("label emosi").
 Branch: `gilang/pengaturan` · Acuan: PRD F11.
 - Isi `SettingsPage.tsx` dengan: ambang confidence (slider 0,50–0,95), suara (Gadis/Ardi), deteksi ekspresi (tampil nonaktif, "Segera hadir"),
   mode penerjemah (A/B, B nonaktif bertuliskan "Segera"), debug (sudah ada).
-- Simpan di `settingsStore.ts` (tambah field + fungsi `set...`, ikuti pola `debug`). Naikkan `version` di `persist`
-  dari 1 ke 2.
+- Simpan di `settingsStore.ts` (tambah field + fungsi `set...`, ikuti pola `debug` dan `translator`). **Jangan** naikkan
+  `version` di `persist`: field baru otomatis memakai nilai default, sedangkan menaikkan versi tanpa `migrate` menghapus
+  pengaturan yang tersimpan.
+- Pilihan Mode A/B sudah ada (dibuat Rakan, PR #3); cukup rapikan tampilannya.
 - Tidak perlu menyambungkan ke kamera/penerjemah: Rakan yang memakai nilainya. Tulis di PR field apa saja yang Anda tambah.
 - Tes: ubah slider/toggle → nilai di store berubah.
 
