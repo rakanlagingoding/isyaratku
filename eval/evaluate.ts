@@ -1,5 +1,6 @@
 // Translation evaluation (PRD §11.3): Mode A vs Mode B with corpus BLEU and chrF, per difficulty.
-// Mode B columns stay null until api/translate.ts exists. Run with `npm run eval` (eval/run_eval.mjs).
+// Mode B sentences come from eval/run_eval.mjs (Gemini, when LLM_API_KEY is set); Mode B is scored only
+// when every pair has one, so A and B are always compared on the same sentences.
 
 import { corpusBleu, corpusChrf } from '../src/lib/metrics';
 import { translateRuleBased } from '../src/lib/translator/ruleBased';
@@ -24,10 +25,10 @@ export type Summary = {
   chrfB: number | null;
 };
 
-function score(rows: Row[], subset: string): Summary {
+function score(rows: Row[], subset: string, scoreB: boolean): Summary {
   const refs = rows.map((r) => r.reference);
   const b = rows.map((r) => r.modeB);
-  const hasB = b.length > 0 && b.every((x): x is string => x !== null);
+  const hasB = scoreB && b.length > 0 && b.every((x): x is string => x !== null);
   return {
     subset,
     n: rows.length,
@@ -38,17 +39,28 @@ function score(rows: Row[], subset: string): Summary {
   };
 }
 
-export function evaluate(pairs: readonly Pair[]): { rows: Row[]; summary: Summary[] } {
-  const rows = pairs.map((p) => ({
+export function evaluate(
+  pairs: readonly Pair[],
+  modeB: ReadonlyArray<string | null> = [],
+): { rows: Row[]; summary: Summary[] } {
+  const rows = pairs.map((p, i) => ({
     id: p.id,
     difficulty: p.difficulty,
     glosses: p.glosses.join(' '),
     reference: p.reference,
     modeA: translateRuleBased(p.glosses),
-    modeB: null,
+    modeB: modeB[i] ?? null,
   }));
-  const subsets = ['mudah', 'sulit'].map((d) => score(rows.filter((r) => r.difficulty === d), d));
-  return { rows, summary: [score(rows, 'semua'), ...subsets] };
+  // One failed Mode B row voids Mode B for every subset: A and B must cover the same sentences.
+  const allB = rows.every((r) => r.modeB !== null);
+  const subsets = ['mudah', 'sulit'].map((d) =>
+    score(
+      rows.filter((r) => r.difficulty === d),
+      d,
+      allB,
+    ),
+  );
+  return { rows, summary: [score(rows, 'semua', allB), ...subsets] };
 }
 
 const csvField = (v: string | null) =>

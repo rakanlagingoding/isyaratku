@@ -56,4 +56,19 @@ describe('toCsv', () => {
     expect(header).toBe('id,difficulty,glosses,reference,mode_a,mode_b');
     expect(line).toBe('p2,mudah,HALO APA-KABAR,"Halo, apa kabar?","Ia bilang ""halo""",');
   });
+
+  it('scores Mode B when every pair has a Mode B sentence', () => {
+    const modeB = ['Saya sudah makan.', 'Halo, apa kabar?', 'Saya mencari motor.'];
+    const { rows, summary } = evaluate(pairs, modeB);
+    expect(rows.map((r) => r.modeB)).toEqual(modeB);
+    const all = summary.find((s) => s.subset === 'semua');
+    expect(all?.bleuB).toBeCloseTo(100, 6);
+    expect(all?.chrfB).toBeCloseTo(100, 6);
+  });
+
+  it('leaves Mode B scores empty when some pairs failed (no unfair partial comparison)', () => {
+    const { rows, summary } = evaluate(pairs, ['Saya sudah makan.', null, 'Saya mencari motor.']);
+    expect(rows[1]?.modeB).toBeNull();
+    expect(summary.every((s) => s.bleuB === null)).toBe(true);
+  });
 });

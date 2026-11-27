@@ -26,6 +26,10 @@ type SessionState = {
   emotion: Emotion | null;
   /** Face summary of the last finished sentence (voice tone + replay). */
   sentenceFace: SentenceFace;
+  /** Mode B request in flight. */
+  translating: boolean;
+  /** Last sentence came from Mode A because Mode B failed. */
+  sentenceFallback: boolean;
   start: () => void;
   pause: () => void;
   setMode: (mode: RecognitionMode) => void;
@@ -41,6 +45,9 @@ type SessionState = {
    * Returns the text to speak, or '' when no chip is left (the sentence is then left unchanged).
    */
   takeSentence: (face?: SentenceFace) => string;
+  /** Mode B: take the chips for an async translation; signs made meanwhile start the next sentence. */
+  beginTranslation: () => string[];
+  endTranslation: (text: string, face: SentenceFace, fallback: boolean) => void;
   clear: () => void;
 };
 
@@ -56,6 +63,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
   speaking: false,
   emotion: null,
   sentenceFace: NEUTRAL_FACE,
+  translating: false,
+  sentenceFallback: false,
   start: () => set({ running: true }),
   pause: () => set({ running: false, active: null, wordBuffer: '', emotion: null }),
   setMode: (mode) => set({ mode, wordBuffer: '', active: null }),
@@ -71,10 +80,17 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     const text = translateRuleBased(get().glosses, { isQuestion: face.isQuestion });
     if (text) {
       get().finishSentence(text);
-      set({ sentenceFace: face });
+      set({ sentenceFace: face, sentenceFallback: false });
     }
     return text;
   },
+  beginTranslation: () => {
+    const glosses = get().glosses;
+    set({ glosses: [], wordBuffer: '', translating: glosses.length > 0 });
+    return glosses;
+  },
+  endTranslation: (text, face, fallback) =>
+    set({ sentence: text, sentenceFace: face, sentenceFallback: fallback, translating: false }),
   clear: () =>
     set({
       running: false,
@@ -85,6 +101,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       speaking: false,
       emotion: null,
       sentenceFace: NEUTRAL_FACE,
+      translating: false,
+      sentenceFallback: false,
     }),
 }));
 
@@ -98,8 +116,10 @@ export function currentStage(s: {
   speaking: boolean;
   wordBuffer: string;
   glosses: readonly string[];
+  translating?: boolean;
 }): Stage | null {
   if (s.speaking) return 'suara';
+  if (s.translating) return 'interpretasi';
   if (!s.running) return null;
   return s.glosses.length > 0 && !s.wordBuffer ? 'interpretasi' : 'tangan';
 }

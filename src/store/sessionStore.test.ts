@@ -111,6 +111,28 @@ describe('sessionStore', () => {
     expect(currentStage({ ...base, running: false, speaking: true })).toBe('suara');
   });
 
+  it('currentStage shows Interpretasi while Mode B is translating', () => {
+    const base = { running: true, speaking: false, wordBuffer: '', glosses: [] as string[] };
+    expect(currentStage({ ...base, translating: true })).toBe('interpretasi');
+    expect(currentStage({ ...base, running: false, translating: true })).toBe('interpretasi');
+  });
+
+  it('Mode B: beginTranslation hands over the chips, endTranslation shows the result', () => {
+    store().addGloss('SAYA');
+    store().addGloss('MAKAN');
+    expect(store().beginTranslation()).toEqual(['SAYA', 'MAKAN']);
+    expect(store().glosses).toEqual([]);
+    expect(store().translating).toBe(true);
+    store().addGloss('MINUM'); // a sign made while waiting belongs to the next sentence
+    store().endTranslation('Saya makan.', { emotion: 'netral', isQuestion: false }, true);
+    expect(store()).toMatchObject({
+      sentence: 'Saya makan.',
+      translating: false,
+      sentenceFallback: true,
+      glosses: ['MINUM'],
+    });
+  });
+
   it('clear() also stops the speaking flag', () => {
     store().setSpeaking(true);
     store().clear();
