@@ -275,6 +275,13 @@ Uji HP pertama (iPhone, 31 FPS deteksi): chip lambat muncul dan salah kata ("Say
   ketukan; ucapan akhir kalimat berasal dari loop kamera. `unlockSpeech()` mengucapkan spasi bervolume 0 di handler
   tombol "Mulai".
 
+### #39 — 2026-11-27 — Ekspresi wajah ditunda ("segera hadir")
+Diputuskan pemilik. `emotion.json` → `"enabled": false`: worker tidak mengunduh/menjalankan FaceLandmarker (hemat ±3,7 MB
+dan beban tiap 3 frame di HP), tahap Ekspresi di StageBar bertanda "Segera" dan detailnya "Segera hadir". Tanpa wajah,
+`FaceTracker` memberi `netral` + `isQuestion: false`, jadi kalimat tanya tanpa kata tanya tidak mendapat `?` (R9 tidak
+terpicu) dan suara bernada netral. Kode F13 (`emotion.ts` + tes, worker, store) tetap ada; menyalakan lagi cukup
+`"enabled": true`. Tugas `EmotionBadge` (Gilang) dan skenario uji alis naik (Radja) ikut ditunda.
+
 ### #40 — 2026-11-27 — Mode B: Google Gemini lewat `/api/translate`
 - **Provider:** Google Gemini (dipilih pemilik), REST `models/{model}:generateContent`, tanpa dependency baru (`fetch`).
   Model dari `LLM_MODEL` (default `gemini-3.1-flash-lite`, punya tier gratis); key `LLM_API_KEY` hanya di `.env` server,

@@ -3,6 +3,9 @@
 Anggota: **Rakan**, **Radja**, **Gilang**. Repo: `rakanlagingoding/isyaratku` (private, GitHub).
 Semua aturan di `CLAUDE.md` (bagian "Aturan kode" dan "Larangan") berlaku untuk **semua anggota**, bukan hanya untuk Claude.
 
+Panduan langkah demi langkah: [panduan/git-dasar.md](panduan/git-dasar.md) (semua anggota),
+[panduan/gilang.md](panduan/gilang.md), [panduan/radja.md](panduan/radja.md).
+
 ## 1. Persiapan (sekali per anggota)
 
 1. Rakan mengundang Radja dan Gilang: GitHub → repo → **Settings → Collaborators → Add people** (pakai username GitHub
@@ -84,7 +87,7 @@ Acuan: PRD bagian 2 (metrik), 11 (training & evaluasi), dan Fase 8.
    macro-F1 sebelum vs sesudah. Kirim `signs-model.zip` ke Rakan lewat PR atau grup.
 2. **Panduan peragaan**: tabel 63 kata kamera + cara memperagakan (dari video dataset), dipakai Gilang untuk halaman
    Belajar dan untuk demo.
-3. **Rubrik 3 dimensi** untuk Mesin Penerjemah: menilai hasil Mode A (dan Mode B saat siap) dari `eval/results.csv`.
+3. **Rubrik 3 dimensi** untuk Mesin Penerjemah (`eval/rubric.md`): menilai hasil Mode A (dan Mode B saat siap) dari `eval/results.csv`.
 4. **Uji pengguna** 3–5 orang + kuesioner SUS, dan rekap metrik PRD bagian 2.
 5. **Laporan dan slide** (`docs/laporan/`): latar belakang, dataset + atribusi (`training/README.md`), metode,
    hasil BLEU/chrF + rubrik, hasil uji pengguna.

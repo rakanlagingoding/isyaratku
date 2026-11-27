@@ -30,4 +30,12 @@ describe('StageBar', () => {
     fireEvent.click(suara);
     expect(screen.queryByText('detail suara')).not.toBeInTheDocument();
   });
+
+  it('marks a coming-soon stage with "Segera" and still opens its detail', () => {
+    render(<StageBar current={null} renderDetail={detail} comingSoon={['ekspresi']} />);
+    const ekspresi = screen.getByRole('button', { name: /Ekspresi/ });
+    expect(ekspresi).toHaveTextContent('Segera');
+    fireEvent.click(ekspresi);
+    expect(screen.getByText('detail ekspresi')).toBeInTheDocument();
+  });
 });
