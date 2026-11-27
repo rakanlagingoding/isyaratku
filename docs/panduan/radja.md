@@ -82,7 +82,7 @@ Branch: `radja/rubrik` · File: `eval/rubric.md` (nama sesuai PRD) + `eval/rubri
 ### Tugas 4 — Uji pengguna + SUS
 
 Branch: `radja/uji-pengguna` · Acuan: PRD Fase 8 dan bagian 2.
-- 3–5 orang. Skenario tetap (mis. eja nama sendiri; peragakan "SAYA MAKAN SUDAH"; tanya dengan alis naik).
+- 3–5 orang. Skenario tetap (mis. eja nama sendiri; peragakan "SAYA MAKAN SUDAH"). Ekspresi wajah sedang ditunda ("segera hadir"), jadi tidak diuji.
 - Catat per skenario: berhasil/tidak, waktu, kata salah. Isi kuesioner **SUS** (10 pertanyaan standar, skor 0–100).
 - **Privasi**: jangan merekam/menyimpan video wajah peserta; catat hasil saja, tanpa nama lengkap.
 - Hasil: `docs/laporan/uji-pengguna.md` (tabel + skor SUS rata-rata + temuan utama).

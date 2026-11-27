@@ -59,7 +59,10 @@ kamera kecil dan berdesakan (lihat screenshot uji HP di grup).
   (tes `StageBar.test.tsx` dkk. jangan dihapus; ubah hanya kalau teksnya memang berubah).
 - Sertakan screenshot sebelum/sesudah di PR.
 
-### Tugas 2 — `EmotionBadge`
+### Tugas 2 — `EmotionBadge` (DITUNDA: ekspresi wajah "segera hadir", DECISIONS #39)
+
+> Lewati dulu, lanjut ke Tugas 3. Fitur ekspresi wajah dimatikan sementara; tahap Ekspresi di StageBar bertanda "Segera".
+
 
 Branch: `gilang/emotion-badge` · Acuan: PRD F7 ("label emosi").
 - Komponen baru `src/components/EmotionBadge.tsx`: menampilkan emosi wajah saat ini di pojok kamera, mis. "😊 Senang".
@@ -71,7 +74,7 @@ Branch: `gilang/emotion-badge` · Acuan: PRD F7 ("label emosi").
 ### Tugas 3 — Halaman Pengaturan (tampilan F11)
 
 Branch: `gilang/pengaturan` · Acuan: PRD F11.
-- Isi `SettingsPage.tsx` dengan: ambang confidence (slider 0,50–0,95), suara (Gadis/Ardi), deteksi ekspresi (on/off),
+- Isi `SettingsPage.tsx` dengan: ambang confidence (slider 0,50–0,95), suara (Gadis/Ardi), deteksi ekspresi (tampil nonaktif, "Segera hadir"),
   mode penerjemah (A/B, B nonaktif bertuliskan "Segera"), debug (sudah ada).
 - Simpan di `settingsStore.ts` (tambah field + fungsi `set...`, ikuti pola `debug`). Naikkan `version` di `persist`
   dari 1 ke 2.
