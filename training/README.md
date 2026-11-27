@@ -27,7 +27,9 @@ Notebook dijalankan di **Google Colab** (gratis, tanpa instalasi). Hasilnya mode
 
 1. Buka `train_signs.ipynb` di Colab → **Runtime → Run all**; unggah `src/data/vocab.json` saat diminta.
 2. WL-BISINDO diunduh lewat `kagglehub` (jika gagal: unduh zip dari
-   [Kaggle](https://www.kaggle.com/datasets/glennleonali/wl-bisindo), perlu akun, lalu unggah). Mendeley diunduh otomatis.
+   [Kaggle](https://www.kaggle.com/datasets/glennleonali/wl-bisindo), perlu akun, lalu unggah). Mendeley sering menolak unduhan skrip (403): unduh manual lewat **Download All** di
+   [halaman Mendeley](https://data.mendeley.com/datasets/yzhzkzbnmw), simpan sebagai `MyDrive/mendeley.zip` di Google Drive;
+   notebook memakainya otomatis (izinkan mount Drive saat diminta).
 3. Konversi video memakan ±20–40 menit (di-cache di `data/`). Notebook mencetak aspek taksiran Mendeley, jumlah sampel,
    akurasi + macro-F1 (per sumber: WL peraga 4, Mendeley, `_IDLE`).
 4. Ekstrak `signs-model.zip` ke `public/models/signs/`.
