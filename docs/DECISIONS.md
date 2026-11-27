@@ -274,3 +274,22 @@ Uji HP pertama (iPhone, 31 FPS deteksi): chip lambat muncul dan salah kata ("Say
 - **Suara tidak keluar otomatis (iOS):** Safari/WebKit memblokir `speechSynthesis` sampai satu ucapan dimulai dari
   ketukan; ucapan akhir kalimat berasal dari loop kamera. `unlockSpeech()` mengucapkan spasi bervolume 0 di handler
   tombol "Mulai".
+
+### #40 — 2026-11-27 — Mode B: Google Gemini lewat `/api/translate`
+- **Provider:** Google Gemini (dipilih pemilik), REST `models/{model}:generateContent`, tanpa dependency baru (`fetch`).
+  Model dari `LLM_MODEL` (default `gemini-3.1-flash-lite`, punya tier gratis); key `LLM_API_KEY` hanya di `.env` server,
+  dikirim lewat header `x-goog-api-key` (tidak di URL).
+- **Batas kepercayaan:** `validateTranslateInput` (src/lib/translator/llm.ts) hanya menerima gloss yang ada di
+  `vocab.json` (`signs` tanpa `_IDLE`, `textOnly`) atau `FS:[A-Z]{1,20}`, maks 20 gloss, emosi dari `emotion.json`,
+  `isQuestion` boolean. Teks bebas tidak pernah sampai ke LLM (juga menutup prompt injection). Jawaban harus JSON
+  `{"sentence"}` ≤ 300 karakter. Rate limit 30/menit per IP (memori proses; cukup untuk demo).
+- **Prompt:** instruksi tata bahasa BISINDO + 4 contoh few-shot yang **dicek tes tidak ada di `eval/gloss_pairs.json`**
+  agar BLEU/chrF Mode B tidak bocor.
+- **Fallback:** klien `translateModeB` (timeout 5 dtk > timeout server 4 dtk) memakai Mode A bila HTTP gagal, offline,
+  key kosong (503), kuota (502) atau jawaban rusak; R9 tetap berlaku. UI menandai "Mode A — Mode B gagal".
+- **Jalan lokal:** plugin di `vite.config.ts` memasang handler yang sama di `vite dev` dan `vite preview` (menjawab #18
+  tanpa Vercel CLI); hanya variabel `LLM_*` yang dibaca, tidak masuk bundel klien.
+- **Async di UI:** `beginTranslation` mengambil chip (isyarat baru selama menunggu masuk kalimat berikutnya),
+  `endTranslation` menampilkan hasil. Pilihan Mode A/B di Pengaturan (`settingsStore.translator`, default Mode A).
+- **Evaluasi:** `npm run eval` memanggil Gemini untuk 72 pasangan (jeda `LLM_EVAL_DELAY_MS`, coba ulang 3×). Satu
+  pasangan gagal → skor Mode B dikosongkan untuk semua subset (A dan B harus dinilai pada kalimat yang sama).

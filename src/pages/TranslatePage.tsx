@@ -9,6 +9,7 @@ import { toFeatures } from '../lib/features';
 import { fingerspellToWord, Segmenter, WordSegmenter, type GlossSegmenter } from '../lib/segmenter';
 import { FaceTracker, toEmotion, type Blendshapes } from '../lib/emotion';
 import { isSpeechSupported, speak, stopSpeaking, unlockSpeech } from '../lib/speech';
+import { translateModeB } from '../lib/translator/modeB';
 import { currentStage, useSessionStore, type Stage } from '../store/sessionStore';
 import { useSettingsStore } from '../store/settingsStore';
 import type { Emotion, HandFrame } from '../types';
@@ -25,7 +26,8 @@ export default function TranslatePage() {
   const [classifier, setClassifier] = useState<Classifier | null>(null);
   const segmenterRef = useRef<GlossSegmenter | null>(null);
   const { running, mode, glosses, wordBuffer, active, sentence, speaking } = useSessionStore();
-  const { emotion, sentenceFace } = useSessionStore();
+  const { emotion, sentenceFace, translating, sentenceFallback } = useSessionStore();
+  const translator = useSettingsStore((s) => s.translator);
   const { start, pause, setMode, removeGloss, clear } = useSessionStore();
   const [speechOk] = useState(() => isSpeechSupported());
   const [face] = useState(() => new FaceTracker());
@@ -76,6 +78,15 @@ export default function TranslatePage() {
         // Use the chips, not the event payload: the user may have removed some.
         const summary = face.summary(performance.now());
         face.reset();
+        if (useSettingsStore.getState().translator === 'llm') {
+          const glosses = s.beginTranslation();
+          if (glosses.length === 0) return;
+          void translateModeB(glosses, summary).then(({ sentence: text, fallback }) => {
+            s.endTranslation(text, summary, fallback);
+            say(text, summary.emotion);
+          });
+          return;
+        }
         const text = s.takeSentence(summary);
         if (text) say(text, summary.emotion);
       }),
@@ -148,9 +159,12 @@ export default function TranslatePage() {
         }
         return emotion ? `Wajah: ${EMOTION_LABELS[emotion]}` : 'Wajah belum terlihat.';
       case 'interpretasi':
+        if (translating) return 'Menerjemahkan dengan Mode B (LLM)…';
         if (glosses.length > 0)
           return `${glosses.map(fingerspellToWord).join(' ')} → menunggu akhir kalimat`;
-        return sentence ? `Hasil terakhir: ${sentence}` : 'Belum ada isyarat untuk diterjemahkan.';
+        if (!sentence) return 'Belum ada isyarat untuk diterjemahkan.';
+        if (translator === 'rule') return `Hasil terakhir (Mode A): ${sentence}`;
+        return `Hasil terakhir (${sentenceFallback ? 'Mode A — Mode B gagal' : 'Mode B'}): ${sentence}`;
       case 'suara':
         if (!speechOk) return 'Suara tidak didukung browser ini.';
         return speaking ? `Berbicara: "${sentence}"` : 'Tidak sedang berbicara.';
@@ -189,7 +203,7 @@ export default function TranslatePage() {
 
       <div className="flex flex-col gap-3 p-3">
         <StageBar
-          current={currentStage({ running, speaking, wordBuffer, glosses })}
+          current={currentStage({ running, speaking, wordBuffer, glosses, translating })}
           renderDetail={stageDetail}
         />
         <CaptionBar text={sentence} spelling={wordBuffer} />

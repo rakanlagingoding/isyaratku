@@ -48,7 +48,7 @@ Diperbarui setiap kali satu tugas atau fase selesai. Agent: centang tugas, isi t
 ## Fase 6 — Mesin penerjemah (28 Des–3 Jan)
 
 - [x] F5 Mode A: `ruleBased.ts` lolos mustPass 13 + mustPassWithFace 3, dan identik dengan `reference_rules.py` di 72 pasangan korpus (2026-11-26; dipakai halaman Terjemah untuk kalimat dari chip)
-- [ ] F5 Mode B: `api/translate.ts` + fallback (cara menjalankan API lokal, DECISIONS #18)
+- [x] F5 Mode B: `api/translate.ts` (Gemini) + validasi + rate limit + fallback Mode A; jalan di `vite dev`/`preview`; pilihan Mode A/B di Pengaturan; `npm run eval` mengisi kolom Mode B jika `LLM_API_KEY` ada (2026-11-27, DECISIONS #40). Belum diuji dengan key asli / di HP
 - [x] `npm run eval` (`eval/evaluate.ts` + `eval/run_eval.mjs`): BLEU + chrF Mode A per subset → `eval/results.csv` (2026-11-26; metrik = sacreBLEU 2.6.0, dicek silang); kolom Mode B menunggu Mode B
 
 ## Fase 7 — Ekspresi, suara, 4 tahap, percakapan (4–10 Jan)
